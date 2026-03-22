@@ -1,0 +1,6 @@
+C:\xampp\php\php.exe -S localhost:8000 -t .
+
+chưa có page profile, thiếu productdetail, thiếu thời gian thuê và trả đồ, 
+kiểm tra trùng lịch , 
+admin chưa có danh mục sản phẩm 
+thông tin người dùng theo đơn thuê, trang dashboard , AI
