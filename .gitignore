@@ -1,0 +1,16 @@
+# Environment variables - KHÔNG BAO GIỜ commit file này lên Git!
+.env
+.env.local
+.env.production
+
+# Dependencies
+vendor/
+node_modules/
+
+# Logs
+*.log
+error_log
+
+# OS files
+.DS_Store
+Thumbs.db

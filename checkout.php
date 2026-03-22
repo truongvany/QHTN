@@ -1,185 +1,146 @@
-<?php 
-require_once 'config.php'; 
+<?php
+require_once 'config.php';
 
-// ====================================================
-// LOGIC PHP: GIỮ NGUYÊN KHÔNG THAY ĐỔI
-// ====================================================
-
-// 1. KIỂM TRA ĐĂNG NHẬP
+// ── 1. KIỂM TRA ĐĂNG NHẬP ──
 if (!isset($_SESSION['user_id'])) {
-    header("Location: login.php");
+    header('Location: login.php');
     exit();
 }
 
-// 2. KIỂM TRA GIỎ HÀNG
+// ── 2. KIỂM TRA GIỎ HÀNG ──
 if (empty($_SESSION['cart']) && !isset($_SESSION['last_order_id'])) {
-    header("Location: index.php");
+    header('Location: index.php');
     exit();
 }
 
 $showSuccess = false;
-$error = "";
-$total = 0;
+$error       = '';
+$total       = 0;
 
-// Tính tổng tiền hiển thị (theo số ngày thuê)
-if(!empty($_SESSION['cart'])) {
-    foreach($_SESSION['cart'] as $item) {
-        $days = isset($item['duration_days']) ? max(1, intval($item['duration_days'])) : 1;
+// Tính tổng tiền hiển thị
+if (!empty($_SESSION['cart'])) {
+    foreach ($_SESSION['cart'] as $item) {
+        $days   = max(1, (int)($item['duration_days'] ?? 1));
         $total += $item['price'] * $item['quantity'] * $days;
     }
 }
 
-function bookedQuantityForVariant(PDO $conn, int $variantId, string $startDate, string $endDate): int {
+// ── Helper: kiểm tra đặt chỗ (guard chống redeclare) ──
+if (!function_exists('bookedQuantityForVariant')) {
+    function bookedQuantityForVariant(PDO $conn, int $variantId, string $startDate, string $endDate): int {
         $sql = "SELECT COALESCE(SUM(od.quantity),0) FROM order_details od
-                        JOIN orders o ON od.order_id = o.id
-                        WHERE od.variant_id = ?
-                            AND od.rental_start IS NOT NULL AND od.rental_end IS NOT NULL
-                            AND o.status NOT IN ('cancelled','returned')
-                            AND NOT (od.rental_end < ? OR od.rental_start > ?)
-                        ";
+                JOIN orders o ON od.order_id = o.id
+                WHERE od.variant_id = ?
+                  AND od.rental_start IS NOT NULL AND od.rental_end IS NOT NULL
+                  AND o.status NOT IN ('cancelled','returned')
+                  AND NOT (od.rental_end < ? OR od.rental_start > ?)";
         $stmt = $conn->prepare($sql);
         $stmt->execute([$variantId, $startDate, $endDate]);
         return (int)$stmt->fetchColumn();
+    }
 }
 
-function hasProductConflictNoVariant(PDO $conn, int $productId, string $startDate, string $endDate): bool {
+if (!function_exists('hasProductConflictNoVariant')) {
+    function hasProductConflictNoVariant(PDO $conn, int $productId, string $startDate, string $endDate): bool {
         $sql = "SELECT 1 FROM order_details od
-                        JOIN orders o ON od.order_id = o.id
-                        WHERE od.product_id = ?
-                            AND od.variant_id IS NULL
-                            AND od.rental_start IS NOT NULL AND od.rental_end IS NOT NULL
-                            AND o.status NOT IN ('cancelled','returned')
-                            AND NOT (od.rental_end < ? OR od.rental_start > ?)
-                        LIMIT 1";
+                JOIN orders o ON od.order_id = o.id
+                WHERE od.product_id = ? AND od.variant_id IS NULL
+                  AND od.rental_start IS NOT NULL AND od.rental_end IS NOT NULL
+                  AND o.status NOT IN ('cancelled','returned')
+                  AND NOT (od.rental_end < ? OR od.rental_start > ?)
+                LIMIT 1";
         $stmt = $conn->prepare($sql);
         $stmt->execute([$productId, $startDate, $endDate]);
         return (bool)$stmt->fetchColumn();
+    }
 }
 
-// XỬ LÝ ĐẶT HÀNG
+// ── 3. XỬ LÝ ĐẶT HÀNG ──
 if (isset($_POST['checkout']) && !empty($_SESSION['cart'])) {
-    
     $user_id  = $_SESSION['user_id'];
-    $fullname = $_POST['fullname']; 
-    $phone    = $_POST['phone'];
-    $address  = $_POST['address'];
-    $note     = $_POST['note'];
-    
-    // Gộp thông tin vào cột note
-    $full_note_for_db = "Người nhận: $fullname | SĐT: $phone | ĐC: $address | Note: $note";
+    $fullname = trim($_POST['fullname'] ?? '');
+    $phone    = trim($_POST['phone']    ?? '');
+    $address  = trim($_POST['address']  ?? '');
+    $note     = trim($_POST['note']     ?? '');
+    $payment  = $_POST['payment_method'] ?? 'cod';
 
-    // A. BẢO MẬT: TÍNH LẠI TỔNG TIỀN TỪ DATABASE
+    $full_note_for_db = "Người nhận: $fullname | SĐT: $phone | ĐC: $address | Ghi chú: $note";
+
     $cart_ids = array_column($_SESSION['cart'], 'id');
-    
-    if(empty($cart_ids)) {
-        header("Location: index.php");
-        exit;
-    }
+    if (empty($cart_ids)) { header('Location: index.php'); exit; }
 
-    $ids_placeholder = implode(',', array_fill(0, count($cart_ids), '?'));
-    $stmt = $conn->prepare("SELECT * FROM products WHERE id IN ($ids_placeholder)");
+    $ids_ph   = implode(',', array_fill(0, count($cart_ids), '?'));
+    $stmt     = $conn->prepare("SELECT * FROM products WHERE id IN ($ids_ph)");
     $stmt->execute($cart_ids);
-    $db_products = $stmt->fetchAll(PDO::FETCH_ASSOC); 
-    
     $product_map = [];
-    foreach($db_products as $p) {
-        $product_map[$p['id']] = $p;
-    }
+    foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $p) $product_map[$p['id']] = $p;
 
-    // Lấy danh sách variant cần thiết
-    $variantIds = [];
-    foreach ($_SESSION['cart'] as $item) {
-        if (!empty($item['variant_id'])) {
-            $variantIds[] = (int)$item['variant_id'];
-        }
-    }
+    $variantIds  = array_filter(array_column($_SESSION['cart'], 'variant_id'));
     $variant_map = [];
     if (!empty($variantIds)) {
-        $place = implode(',', array_fill(0, count($variantIds), '?'));
-        $vstmt = $conn->prepare("SELECT * FROM product_variants WHERE id IN ($place)");
-        $vstmt->execute($variantIds);
-        $variants = $vstmt->fetchAll(PDO::FETCH_ASSOC);
-        foreach ($variants as $v) { $variant_map[$v['id']] = $v; }
+        $vph    = implode(',', array_fill(0, count($variantIds), '?'));
+        $vstmt  = $conn->prepare("SELECT * FROM product_variants WHERE id IN ($vph)");
+        $vstmt->execute(array_values($variantIds));
+        foreach ($vstmt->fetchAll(PDO::FETCH_ASSOC) as $v) $variant_map[$v['id']] = $v;
     }
 
     $real_total = 0;
     foreach ($_SESSION['cart'] as $item) {
         $pid = $item['id'];
-        $days = isset($item['duration_days']) ? max(1, intval($item['duration_days'])) : 1;
-        if(isset($product_map[$pid])) {
-            $priceUse = $product_map[$pid]['price'];
-            if (!empty($item['variant_id']) && isset($variant_map[$item['variant_id']]) && $variant_map[$item['variant_id']]['price_override'] !== null && $variant_map[$item['variant_id']]['price_override'] !== '') {
-                $priceUse = (int)$variant_map[$item['variant_id']]['price_override'];
+        if (isset($product_map[$pid])) {
+            $days      = max(1, (int)($item['duration_days'] ?? 1));
+            $priceUse  = $product_map[$pid]['price'];
+            $vid       = $item['variant_id'] ?? null;
+            if ($vid && isset($variant_map[$vid]) && $variant_map[$vid]['price_override'] !== null && $variant_map[$vid]['price_override'] !== '') {
+                $priceUse = (int)$variant_map[$vid]['price_override'];
             }
             $real_total += $priceUse * $item['quantity'] * $days;
         }
     }
 
-    // B. GHI VÀO DATABASE
     try {
         $conn->beginTransaction();
 
-        // 1. INSERT VÀO BẢNG ORDERS
-        $sql_order = "INSERT INTO orders (user_id, total_price, status, note, created_at) 
-                      VALUES (?, ?, 'pending', ?, NOW())";
-        
-        $stmt = $conn->prepare($sql_order);
-        $stmt->execute([$user_id, $real_total, $full_note_for_db]);
+        $stmt = $conn->prepare("INSERT INTO orders (user_id, total_price, status, payment_method, note, created_at) VALUES (?, ?, 'pending', ?, ?, NOW())");
+        $stmt->execute([$user_id, $real_total, $payment, $full_note_for_db]);
         $order_id = $conn->lastInsertId();
 
-        // 2. INSERT VÀO BẢNG ORDER_DETAILS
-        $sql_detail = "INSERT INTO order_details (order_id, product_id, variant_id, quantity, price, rental_start, rental_end, duration_days) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
-        $stmt_detail = $conn->prepare($sql_detail);
+        $stmt_detail = $conn->prepare("INSERT INTO order_details (order_id, product_id, variant_id, quantity, price, rental_start, rental_end, duration_days) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
         foreach ($_SESSION['cart'] as $item) {
             $pid = $item['id'];
-            if(isset($product_map[$pid])) {
-                $p_db = $product_map[$pid];
-                $variantId = $item['variant_id'] ?? null;
-                $variantRow = $variantId && isset($variant_map[$variantId]) ? $variant_map[$variantId] : null;
-                $priceUse = $p_db['price'];
-                if ($variantRow && $variantRow['price_override'] !== null && $variantRow['price_override'] !== '') {
-                    $priceUse = (int)$variantRow['price_override'];
-                }
-                $days = isset($item['duration_days']) ? max(1, intval($item['duration_days'])) : 1;
-                $startDate = isset($item['rental_start']) ? $item['rental_start'] : null;
-                $endDate = isset($item['rental_end']) ? $item['rental_end'] : null;
+            if (!isset($product_map[$pid])) continue;
+            $p_db      = $product_map[$pid];
+            $variantId = $item['variant_id'] ?? null;
+            $variantRow= $variantId && isset($variant_map[$variantId]) ? $variant_map[$variantId] : null;
+            $priceUse  = $p_db['price'];
+            if ($variantRow && $variantRow['price_override'] !== null && $variantRow['price_override'] !== '') {
+                $priceUse = (int)$variantRow['price_override'];
+            }
+            $days      = max(1, (int)($item['duration_days'] ?? 1));
+            $startDate = $item['rental_start'] ?? null;
+            $endDate   = $item['rental_end']   ?? null;
 
-                if ($startDate && $endDate) {
-                    if ($variantRow) {
-                        $booked = bookedQuantityForVariant($conn, $variantRow['id'], $startDate, $endDate);
-                        $stockAvail = (int)$variantRow['stock'];
-                        if (($booked + $item['quantity']) > $stockAvail) {
-                            throw new Exception('Biến thể đã hết hàng trong thời gian này.');
-                        }
-                    } else {
-                        if (hasProductConflictNoVariant($conn, $pid, $startDate, $endDate)) {
-                            throw new Exception('Sản phẩm đã được đặt trong khoảng thời gian bạn chọn.');
-                        }
-                    }
-                }
-
-                $stmt_detail->execute([
-                    $order_id, 
-                    $pid,
-                    $variantId,
-                    $item['quantity'], 
-                    $priceUse,
-                    $startDate,
-                    $endDate,
-                    $days
-                ]);
-
-                // Trừ kho biến thể nếu có
+            if ($startDate && $endDate) {
                 if ($variantRow) {
-                    $upd = $conn->prepare("UPDATE product_variants SET stock = stock - ? WHERE id = ? AND stock >= ?");
-                    $upd->execute([$item['quantity'], $variantRow['id'], $item['quantity']]);
-                    if ($upd->rowCount() === 0) {
-                        throw new Exception('Kho không đủ cho biến thể được chọn.');
+                    $booked = bookedQuantityForVariant($conn, $variantRow['id'], $startDate, $endDate);
+                    if (($booked + $item['quantity']) > (int)$variantRow['stock']) {
+                        throw new Exception('Biến thể đã hết hàng trong thời gian này.');
+                    }
+                } else {
+                    if (hasProductConflictNoVariant($conn, $pid, $startDate, $endDate)) {
+                        throw new Exception('Sản phẩm đã được đặt trong khoảng thời gian bạn chọn.');
                     }
                 }
             }
-        }
 
+            $stmt_detail->execute([$order_id, $pid, $variantId, $item['quantity'], $priceUse, $startDate, $endDate, $days]);
+
+            if ($variantRow) {
+                $upd = $conn->prepare("UPDATE product_variants SET stock = stock - ? WHERE id = ? AND stock >= ?");
+                $upd->execute([$item['quantity'], $variantRow['id'], $item['quantity']]);
+                if ($upd->rowCount() === 0) throw new Exception('Kho không đủ cho biến thể được chọn.');
+            }
+        }
         $conn->commit();
 
         $_SESSION['last_order_id'] = $order_id;
@@ -188,16 +149,16 @@ if (isset($_POST['checkout']) && !empty($_SESSION['cart'])) {
             'phone'    => $phone,
             'address'  => $address,
             'total'    => $real_total,
-            'items'    => $_SESSION['cart']
+            'payment'  => $payment,
+            'items'    => $_SESSION['cart'],
         ];
-
         unset($_SESSION['cart']);
-        header("Location: checkout.php?success=1");
+        header('Location: checkout.php?success=1');
         exit;
 
     } catch (Exception $e) {
         $conn->rollBack();
-        $error = "Lỗi hệ thống: " . $e->getMessage();
+        $error = $e->getMessage();
     }
 }
 
@@ -205,247 +166,606 @@ if (isset($_GET['success']) && isset($_SESSION['last_order_id'])) {
     $showSuccess = true;
 }
 
-require_once 'header.php'; 
+// ── User info pre-fill ──
+$prefillName  = '';
+$prefillPhone = '';
+if (isset($_SESSION['user_id'])) {
+    $stmtU = $conn->prepare('SELECT username, phone FROM users WHERE id = ? LIMIT 1');
+    $stmtU->execute([$_SESSION['user_id']]);
+    $uRow = $stmtU->fetch(PDO::FETCH_ASSOC);
+    $prefillName  = $uRow['username'] ?? '';
+    $prefillPhone = $uRow['phone']    ?? '';
+}
+
+$pageTitle = $showSuccess ? 'Đặt Hàng Thành Công | QHTN' : 'Thanh Toán | QHTN';
+require_once 'header.php';
 ?>
 
 <style>
-    :root { 
-        --main-color: #ff4757; 
-        --bg-body: #f4f6f8;
-        --input-bg: #f0f2f5;
-        --text-dark: #2d3436;
-        --shadow-soft: 0 10px 40px rgba(0,0,0,0.08);
-    }
-    
-    body { background-color: var(--bg-body); font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-    
-    /* Layout chung */
-    .checkout-page { max-width: 1100px; margin: 40px auto; padding: 0 20px; }
-    
-    /* Stepper (Thanh tiến trình) */
-    .stepper { display: flex; justify-content: center; margin-bottom: 40px; gap: 40px; }
-    .step { display: flex; align-items: center; gap: 10px; color: #b2bec3; font-weight: 600; font-size: 14px; text-transform: uppercase; }
-    .step.active { color: var(--main-color); }
-    .step-num { width: 28px; height: 28px; border-radius: 50%; border: 2px solid #b2bec3; display: flex; align-items: center; justify-content: center; font-size: 12px; }
-    .step.active .step-num { border-color: var(--main-color); background: var(--main-color); color: #fff; }
+/* ============================================================
+   CHECKOUT PAGE — QHTN CORPORATE EDITION
+   No border-radius · Pink-Burgundy · Đồng bộ cart/orders
+============================================================ */
+.ck-page { background: #f8f5f6; min-height: 80vh; font-family: 'Montserrat', sans-serif; }
 
-    /* Layout 2 cột mới */
-    .checkout-layout { display: grid; grid-template-columns: 1.4fr 1fr; gap: 40px; align-items: start; }
-    
-    /* Style Form bên trái */
-    .form-header h2 { margin: 0 0 10px; font-size: 24px; color: var(--text-dark); }
-    .form-header p { margin: 0 0 30px; color: #636e72; font-size: 14px; }
-    
-    .field-group { margin-bottom: 20px; }
-    .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-    
-    .field-label { display: block; font-size: 13px; font-weight: 700; color: #636e72; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px; }
-    
-    /* Input kiểu mới: Filled Style */
-    .input-modern { 
-        width: 100%; padding: 16px; 
-        background: var(--input-bg); 
-        border: 2px solid transparent; 
-        border-radius: 12px; 
-        font-size: 15px; 
-        color: var(--text-dark); 
-        transition: all 0.2s ease;
-    }
-    .input-modern:focus { background: #fff; border-color: var(--main-color); box-shadow: 0 5px 15px rgba(255, 71, 87, 0.1); outline: none; }
-    textarea.input-modern { resize: vertical; min-height: 100px; }
+/* ── BANNER ── */
+.ck-banner {
+    background: linear-gradient(105deg, rgba(47,28,38,0.95) 0%, rgba(90,33,56,0.88) 55%, rgba(139,48,87,0.75) 100%),
+                url('img/avatars/hero.webp') center 30% / cover no-repeat;
+    padding: 36px 5%;
+}
+.ck-banner-inner { max-width: 1280px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px; }
+.ck-banner-kicker { font-size: 10px; font-weight: 700; letter-spacing: 4px; text-transform: uppercase; color: rgba(255,255,255,0.4); margin-bottom: 6px; }
+.ck-banner-title  { font-size: 28px; font-weight: 900; color: #fff; text-transform: uppercase; letter-spacing: -0.5px; }
 
-    /* Style khối bên phải (Hóa đơn) */
-    .order-receipt { 
-        background: #fff; 
-        padding: 30px; 
-        border-radius: 20px; 
-        box-shadow: var(--shadow-soft); 
-        position: sticky; 
-        top: 30px; 
-    }
-    .receipt-header { border-bottom: 2px dashed #dfe6e9; padding-bottom: 20px; margin-bottom: 20px; }
-    .receipt-title { font-size: 18px; font-weight: 800; color: var(--text-dark); }
-    
-    .cart-list { max-height: 350px; overflow-y: auto; padding-right: 5px; }
-    .cart-item { display: flex; align-items: center; gap: 15px; margin-bottom: 20px; }
-    .item-img { width: 64px; height: 64px; border-radius: 12px; object-fit: cover; background: #f0f0f0; }
-    .item-details { flex: 1; }
-    .item-name { font-weight: 600; font-size: 14px; color: var(--text-dark); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;}
-    .item-meta { font-size: 12px; color: #636e72; margin-top: 4px; }
-    .item-price { font-weight: 700; color: var(--main-color); font-size: 14px; }
+/* Stepper (same as cart) */
+.ck-stepper { display: flex; align-items: center; gap: 0; }
+.ck-step { display: flex; align-items: center; gap: 8px; padding: 0 20px; }
+.ck-step:first-child { padding-left: 0; }
+.ck-step-num { width: 28px; height: 28px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 800; color: rgba(255,255,255,0.35); border: 2px solid rgba(255,255,255,0.2); }
+.ck-step.done  .ck-step-num  { background: rgba(63,178,127,0.9); border-color: transparent; color: #fff; }
+.ck-step.active .ck-step-num { background: var(--accent-pink); border-color: var(--accent-pink); color: #fff; }
+.ck-step.compl  .ck-step-num { background: rgba(63,178,127,0.9); border-color: transparent; color: #fff; }
+.ck-step-label { font-size: 10px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: rgba(255,255,255,0.3); }
+.ck-step.done  .ck-step-label  { color: rgba(255,255,255,0.5); }
+.ck-step.active .ck-step-label { color: #fff; }
+.ck-step.compl  .ck-step-label { color: #fff; }
+.ck-step-arrow { font-size: 10px; color: rgba(255,255,255,0.15); flex-shrink: 0; }
 
-    .price-summary { border-top: 2px dashed #dfe6e9; padding-top: 20px; margin-top: 10px; }
-    .summary-row { display: flex; justify-content: space-between; font-size: 15px; color: #636e72; margin-bottom: 10px; }
-    .total-row { display: flex; justify-content: space-between; font-size: 22px; font-weight: 800; color: var(--text-dark); margin-top: 20px; }
-    .total-row span:last-child { color: var(--main-color); }
+/* ── MAIN LAYOUT ── */
+.ck-main { max-width: 1280px; margin: 0 auto; padding: 32px 5%; }
 
-    .btn-confirm { 
-        width: 100%; 
-        padding: 18px; 
-        background: var(--main-color); 
-        color: #fff; 
-        border: none; 
-        border-radius: 12px; 
-        font-size: 16px; 
-        font-weight: 700; 
-        cursor: pointer; 
-        margin-top: 25px; 
-        box-shadow: 0 10px 20px rgba(255, 71, 87, 0.3);
-        transition: transform 0.2s;
-    }
-    .btn-confirm:hover { transform: translateY(-3px); box-shadow: 0 15px 25px rgba(255, 71, 87, 0.4); }
-    .back-link { display: block; text-align: center; margin-top: 15px; color: #b2bec3; font-size: 14px; text-decoration: none; }
-    .back-link:hover { color: var(--main-color); }
+/* ── CHECKOUT FORM LAYOUT ── */
+.ck-layout { display: grid; grid-template-columns: 1fr 360px; gap: 24px; align-items: start; }
 
-    /* Success Page Style */
-    .success-card { 
-        background: #fff; max-width: 500px; margin: 0 auto; padding: 50px 30px; text-align: center; border-radius: 20px; box-shadow: var(--shadow-soft); 
-    }
-    .success-icon { 
-        width: 80px; height: 80px; background: #e0ffe4; color: #00b894; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 40px; margin: 0 auto 20px; 
-    }
-    .bill-info { background: #f9f9f9; padding: 20px; border-radius: 12px; text-align: left; margin: 30px 0; font-size: 14px; color: #555; }
-    .bill-line { display: flex; justify-content: space-between; margin-bottom: 8px; border-bottom: 1px dashed #eee; padding-bottom: 8px;}
+/* ── FORM PANEL ── */
+.ck-form-panel { display: flex; flex-direction: column; gap: 0; }
+.ck-section { background: #fff; border: 1px solid #ecdde4; border-bottom: none; }
+.ck-section:last-child { border-bottom: 1px solid #ecdde4; }
+.ck-section-head { padding: 16px 24px; border-bottom: 1px solid #f5eff2; background: #fff8fb; display: flex; align-items: center; gap: 10px; }
+.ck-section-head-icon { width: 28px; height: 28px; background: var(--accent-pink); color: #fff; display: flex; align-items: center; justify-content: center; font-size: 11px; flex-shrink: 0; }
+.ck-section-title { font-size: 11px; font-weight: 900; color: #2f1c26; text-transform: uppercase; letter-spacing: 2px; }
+.ck-section-body { padding: 24px; display: flex; flex-direction: column; gap: 16px; }
 
-    /* Responsive */
-    @media (max-width: 900px) {
-        .checkout-layout { grid-template-columns: 1fr; }
-        .order-receipt { position: static; margin-bottom: 30px; order: -1; } /* Đẩy giỏ hàng lên trên mobile */
-        .stepper { display: none; } /* Ẩn stepper trên mobile cho gọn */
-    }
+/* Error Banner */
+.ck-error { padding: 14px 20px; background: #fff5f5; border-left: 4px solid #e84a5f; margin-bottom: 0; display: flex; align-items: center; gap: 10px; font-size: 13px; color: #e84a5f; font-weight: 600; }
+
+/* Field Styles */
+.ck-field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.ck-field { display: flex; flex-direction: column; gap: 6px; }
+.ck-field-label { font-size: 9px; font-weight: 800; text-transform: uppercase; letter-spacing: 1.5px; color: #bbb; }
+.ck-field-label .req { color: #e84a5f; }
+.ck-input {
+    padding: 12px 14px; font-size: 13px; font-family: 'Montserrat', sans-serif;
+    color: #2f1c26; background: #fdf9fb;
+    border: 1.5px solid #ecdde4; outline: none;
+    transition: border-color 0.2s, background 0.2s;
+    width: 100%; box-sizing: border-box;
+}
+.ck-input:focus { border-color: var(--accent-pink); background: #fff; }
+.ck-input::placeholder { color: #ccc; font-size: 12px; }
+textarea.ck-input { resize: vertical; min-height: 90px; }
+
+/* Payment Methods */
+.ck-payment-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
+.ck-pay-opt { position: relative; }
+.ck-pay-opt input[type=radio] { position: absolute; opacity: 0; }
+.ck-pay-label {
+    display: flex; flex-direction: column; align-items: center; gap: 8px;
+    padding: 14px 10px; border: 1.5px solid #ecdde4; cursor: pointer;
+    text-align: center; transition: all 0.18s; background: #fdf9fb;
+}
+.ck-pay-label:hover { border-color: var(--accent-pink); background: #fff8fb; }
+.ck-pay-opt input:checked + .ck-pay-label { border-color: var(--accent-pink); background: #fff0f5; }
+.ck-pay-icon { font-size: 20px; }
+.ck-pay-name { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: #2f1c26; }
+.ck-pay-opt input:checked + .ck-pay-label .ck-pay-icon { color: var(--accent-pink); }
+.ck-pay-check { position: absolute; top: 8px; right: 8px; width: 14px; height: 14px; background: var(--accent-pink); color: #fff; font-size: 8px; display: none; align-items: center; justify-content: center; }
+.ck-pay-opt input:checked ~ .ck-pay-check { display: flex; }
+
+/* ── ORDER RECEIPT PANEL ── */
+.ck-receipt { position: sticky; top: 24px; display: flex; flex-direction: column; }
+.ck-receipt-head { background: #2f1c26; padding: 16px 20px; }
+.ck-receipt-title { font-size: 11px; font-weight: 900; color: #fff; text-transform: uppercase; letter-spacing: 2px; }
+.ck-receipt-body { background: #fff; border: 1px solid #ecdde4; border-top: none; }
+
+/* Cart items in receipt */
+.ck-receipt-items { padding: 16px 20px; display: flex; flex-direction: column; gap: 12px; max-height: 320px; overflow-y: auto; border-bottom: 1px solid #f5eff2; }
+.ck-receipt-items::-webkit-scrollbar { width: 3px; }
+.ck-receipt-items::-webkit-scrollbar-thumb { background: #ecdde4; }
+.ck-receipt-item { display: flex; align-items: center; gap: 12px; }
+.ck-receipt-item-img { width: 42px; height: 50px; object-fit: cover; object-position: top; background: #f5eff2; flex-shrink: 0; }
+.ck-receipt-item-info { flex: 1; }
+.ck-receipt-item-name { font-size: 12px; font-weight: 700; color: #2f1c26; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.ck-receipt-item-meta { font-size: 10px; color: #bbb; margin-top: 2px; }
+.ck-receipt-item-price { font-size: 12px; font-weight: 800; color: var(--accent-pink); flex-shrink: 0; text-align: right; }
+
+/* Pricing rows */
+.ck-receipt-pricing { padding: 16px 20px; display: flex; flex-direction: column; gap: 0; }
+.ck-price-row { display: flex; justify-content: space-between; align-items: center; padding: 9px 0; border-bottom: 1px dotted #f5eff2; }
+.ck-price-row:last-of-type { border-bottom: none; }
+.ck-price-label { font-size: 12px; color: #888; }
+.ck-price-value { font-size: 12px; font-weight: 700; color: #2f1c26; }
+.ck-price-value.free  { color: #3fb27f; }
+.ck-price-total { display: flex; justify-content: space-between; align-items: center; padding: 16px 20px; border-top: 2px solid #ecdde4; }
+.ck-price-total-label { font-size: 13px; font-weight: 800; color: #2f1c26; text-transform: uppercase; }
+.ck-price-total-value { font-size: 22px; font-weight: 900; color: var(--accent-pink); }
+
+/* Submit */
+.ck-submit-wrap { padding: 16px 20px 20px; border-top: 1px solid #f5eff2; }
+.ck-submit-btn {
+    display: block; width: 100%; padding: 16px;
+    background: var(--accent-pink); color: #fff; text-align: center;
+    font-size: 11px; font-weight: 800; letter-spacing: 2.5px; text-transform: uppercase;
+    border: none; cursor: pointer; transition: background 0.2s; font-family: 'Montserrat', sans-serif;
+}
+.ck-submit-btn:hover { background: var(--hover-pink, #d54f7a); }
+.ck-back-link { display: block; text-align: center; margin-top: 12px; font-size: 11px; color: #bbb; text-decoration: none; transition: color 0.2s; }
+.ck-back-link:hover { color: var(--accent-pink); }
+
+/* ── SUCCESS PAGE ── */
+.ck-success-wrap { max-width: 660px; margin: 0 auto; }
+.ck-success-top { background: #2f1c26; padding: 32px 40px; text-align: center; }
+.ck-success-icon-ring { width: 72px; height: 72px; background: rgba(63,178,127,0.2); display: flex; align-items: center; justify-content: center; margin: 0 auto 16px; }
+.ck-success-icon-ring i { font-size: 34px; color: #3fb27f; }
+.ck-success-top h2 { font-size: 22px; font-weight: 900; color: #fff; text-transform: uppercase; letter-spacing: -0.5px; margin-bottom: 6px; }
+.ck-success-top p { font-size: 13px; color: rgba(255,255,255,0.45); }
+.ck-success-order-id { display: inline-block; margin-top: 12px; padding: 6px 18px; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.12); font-size: 12px; font-weight: 800; color: rgba(255,255,255,0.7); letter-spacing: 2px; }
+
+.ck-success-body { background: #fff; border: 1px solid #ecdde4; border-top: none; }
+
+.ck-bill-section { padding: 20px 24px; border-bottom: 1px solid #f5eff2; }
+.ck-bill-section-title { font-size: 9px; font-weight: 800; text-transform: uppercase; letter-spacing: 2px; color: #bbb; margin-bottom: 14px; }
+.ck-bill-row { display: flex; justify-content: space-between; align-items: center; padding: 9px 0; border-bottom: 1px dotted #f5eff2; }
+.ck-bill-row:last-child { border-bottom: none; }
+.ck-bill-label { font-size: 12px; color: #888; }
+.ck-bill-value { font-size: 13px; font-weight: 700; color: #2f1c26; }
+.ck-bill-value.pink { color: var(--accent-pink); font-size: 16px; }
+.ck-bill-value.green { color: #3fb27f; }
+
+/* Success items */
+.ck-success-items { padding: 20px 24px; border-bottom: 1px solid #f5eff2; display: flex; flex-direction: column; gap: 10px; }
+.ck-success-item { display: flex; align-items: center; gap: 12px; }
+.ck-success-item-img { width: 38px; height: 46px; object-fit: cover; object-position: top; background: #f5eff2; flex-shrink: 0; }
+.ck-success-item-name { flex: 1; font-size: 12px; font-weight: 700; color: #2f1c26; }
+.ck-success-item-price { font-size: 12px; font-weight: 800; color: var(--accent-pink); }
+
+.ck-success-actions { padding: 20px 24px; display: flex; gap: 10px; flex-wrap: wrap; }
+.ck-success-btn {
+    flex: 1; padding: 14px; text-align: center;
+    font-size: 10px; font-weight: 800; letter-spacing: 2px; text-transform: uppercase;
+    text-decoration: none; transition: all 0.2s;
+}
+.ck-success-btn.primary { background: var(--accent-pink); color: #fff; border: none; }
+.ck-success-btn.primary:hover { background: var(--hover-pink, #d54f7a); }
+.ck-success-btn.ghost { background: transparent; border: 1.5px solid #ecdde4; color: #888; }
+.ck-success-btn.ghost:hover { border-color: var(--accent-pink); color: var(--accent-pink); }
+
+/* Timeline */
+.ck-timeline { padding: 20px 24px; }
+.ck-timeline-title { font-size: 9px; font-weight: 800; text-transform: uppercase; letter-spacing: 2px; color: #bbb; margin-bottom: 16px; }
+.ck-timeline-steps { display: flex; gap: 0; }
+.ck-tl-step { flex: 1; text-align: center; position: relative; }
+.ck-tl-step::after { content: ''; position: absolute; top: 13px; left: 50%; width: 100%; height: 2px; background: #ecdde4; z-index: 0; }
+.ck-tl-step:last-child::after { display: none; }
+.ck-tl-dot { width: 28px; height: 28px; margin: 0 auto 8px; display: flex; align-items: center; justify-content: center; font-size: 12px; position: relative; z-index: 1; }
+.ck-tl-dot.done  { background: var(--accent-pink); color: #fff; }
+.ck-tl-dot.pending { background: #fff; border: 2px solid #ecdde4; color: #ccc; }
+.ck-tl-label { font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: #bbb; }
+.ck-tl-step.done .ck-tl-label { color: var(--accent-pink); }
+
+/* Responsive */
+@media (max-width: 1024px) { .ck-layout { grid-template-columns: 1fr; } .ck-receipt { position: static; } }
+@media (max-width: 640px) { .ck-field-row { grid-template-columns: 1fr; } .ck-payment-grid { grid-template-columns: 1fr; } .ck-stepper { display: none; } }
 </style>
 
-<div class="checkout-page">
+<div class="ck-page">
 
-    <?php if ($showSuccess): $lastOrder = $_SESSION['last_order_info']; ?>
-        <div class="success-card">
-            <div class="success-icon"><i class="fas fa-check"></i></div>
-            <h2 style="color: #2d3436; margin-bottom: 10px;">Đặt hàng thành công!</h2>
-            <p style="color: #b2bec3;">Cảm ơn bạn, đơn hàng #<?= $_SESSION['last_order_id'] ?> đang được xử lý.</p>
+<!-- ── BANNER ── -->
+<div class="ck-banner">
+    <div class="ck-banner-inner">
+        <div>
+            <div class="ck-banner-kicker">Đặt thuê trang phục QHTN</div>
+            <div class="ck-banner-title"><?= $showSuccess ? 'Đặt hàng thành công' : 'Thanh toán' ?></div>
+        </div>
+        <div class="ck-stepper">
+            <div class="ck-step done">
+                <div class="ck-step-num"><i class="fa-solid fa-check" style="font-size:10px"></i></div>
+                <div class="ck-step-label">Giỏ hàng</div>
+            </div>
+            <div class="ck-step-arrow"><i class="fa-solid fa-chevron-right"></i></div>
+            <div class="ck-step <?= $showSuccess ? 'done' : 'active' ?>">
+                <div class="ck-step-num"><?= $showSuccess ? '<i class="fa-solid fa-check" style="font-size:10px"></i>' : '2' ?></div>
+                <div class="ck-step-label">Thanh toán</div>
+            </div>
+            <div class="ck-step-arrow"><i class="fa-solid fa-chevron-right"></i></div>
+            <div class="ck-step <?= $showSuccess ? 'compl active' : '' ?>">
+                <div class="ck-step-num"><?= $showSuccess ? '<i class="fa-solid fa-check" style="font-size:10px"></i>' : '3' ?></div>
+                <div class="ck-step-label">Hoàn tất</div>
+            </div>
+        </div>
+    </div>
+</div>
 
-            <div class="bill-info">
-                <div class="bill-line">
-                    <span>Khách hàng:</span> 
-                    <strong><?= htmlspecialchars($lastOrder['fullname']) ?></strong>
+<?php if ($error && !$showSuccess): ?>
+<div style="background:#e84a5f;color:#fff;padding:14px 5%;font-size:13px;font-weight:700;display:flex;align-items:center;gap:10px;">
+    <i class="fa-solid fa-triangle-exclamation" style="font-size:18px"></i>
+    <span><?= htmlspecialchars($error) ?></span>
+</div>
+<?php endif; ?>
+
+<div class="ck-main">
+
+<?php if ($showSuccess):
+    $lastOrder = $_SESSION['last_order_info'] ?? [];
+    $paymentLabels = ['cod' => 'Thanh toán khi nhận hàng (COD)', 'bank' => 'Chuyển khoản ngân hàng', 'momo' => 'Ví MoMo'];
+    $payLabel = $paymentLabels[$lastOrder['payment'] ?? 'cod'] ?? 'COD';
+?>
+
+<!-- ══════════════════════════════════════
+     SUCCESS PAGE
+══════════════════════════════════════ -->
+<div class="ck-success-wrap">
+    <!-- Top -->
+    <div class="ck-success-top">
+        <div class="ck-success-icon-ring">
+            <i class="fa-solid fa-check"></i>
+        </div>
+        <h2>Đặt hàng thành công!</h2>
+        <p>Cảm ơn bạn đã tin tưởng QHTN. Chúng tôi sẽ liên hệ sớm để xác nhận đơn hàng.</p>
+        <div class="ck-success-order-id">ĐƠN #<?= (int)$_SESSION['last_order_id'] ?></div>
+    </div>
+
+    <div class="ck-success-body">
+        <!-- Timeline -->
+        <div class="ck-timeline">
+            <div class="ck-timeline-title">Trạng thái đơn hàng</div>
+            <div class="ck-timeline-steps">
+                <div class="ck-tl-step done">
+                    <div class="ck-tl-dot done"><i class="fa-solid fa-check" style="font-size:10px"></i></div>
+                    <div class="ck-tl-label">Đặt hàng</div>
                 </div>
-                <div class="bill-line">
-                    <span>Số điện thoại:</span> 
-                    <strong><?= htmlspecialchars($lastOrder['phone']) ?></strong>
+                <div class="ck-tl-step">
+                    <div class="ck-tl-dot pending"><i class="fa-solid fa-circle-check" style="font-size:11px"></i></div>
+                    <div class="ck-tl-label">Xác nhận</div>
                 </div>
-                <div class="bill-line" style="border:none;">
-                    <span>Tổng thanh toán:</span> 
-                    <strong style="color: var(--main-color); font-size: 16px;"><?= number_format($lastOrder['total']) ?>đ</strong>
+                <div class="ck-tl-step">
+                    <div class="ck-tl-dot pending"><i class="fa-solid fa-shirt" style="font-size:11px"></i></div>
+                    <div class="ck-tl-label">Đang thuê</div>
+                </div>
+                <div class="ck-tl-step">
+                    <div class="ck-tl-dot pending"><i class="fa-solid fa-box" style="font-size:11px"></i></div>
+                    <div class="ck-tl-label">Hoàn trả</div>
                 </div>
             </div>
+        </div>
 
-            <a href="index.php" class="btn-confirm" style="text-decoration: none; display: inline-block;">
-                Tiếp tục mua sắm
+        <!-- Customer info -->
+        <div class="ck-bill-section">
+            <div class="ck-bill-section-title"><i class="fa-solid fa-user" style="color:var(--accent-pink)"></i> Thông tin nhận hàng</div>
+            <div class="ck-bill-row">
+                <span class="ck-bill-label">Họ và tên</span>
+                <span class="ck-bill-value"><?= htmlspecialchars($lastOrder['fullname'] ?? '') ?></span>
+            </div>
+            <div class="ck-bill-row">
+                <span class="ck-bill-label">Số điện thoại</span>
+                <span class="ck-bill-value"><?= htmlspecialchars($lastOrder['phone'] ?? '') ?></span>
+            </div>
+            <?php if (!empty($lastOrder['address'])): ?>
+            <div class="ck-bill-row">
+                <span class="ck-bill-label">Địa chỉ</span>
+                <span class="ck-bill-value" style="max-width:60%;text-align:right"><?= htmlspecialchars($lastOrder['address']) ?></span>
+            </div>
+            <?php endif; ?>
+            <div class="ck-bill-row">
+                <span class="ck-bill-label">Hình thức thanh toán</span>
+                <span class="ck-bill-value green"><?= htmlspecialchars($payLabel) ?></span>
+            </div>
+            <div class="ck-bill-row">
+                <span class="ck-bill-label">Tổng thanh toán</span>
+                <span class="ck-bill-value pink"><?= number_format($lastOrder['total'] ?? 0) ?>đ</span>
+            </div>
+        </div>
+
+        <!-- Items ordered -->
+        <?php if (!empty($lastOrder['items'])): ?>
+        <div class="ck-success-items">
+            <div class="ck-bill-section-title" style="margin-bottom:12px"><i class="fa-solid fa-bag-shopping" style="color:var(--accent-pink)"></i> Sản phẩm đã đặt</div>
+            <?php foreach ($lastOrder['items'] as $item):
+                $raw_img  = $item['image'] ?? '';
+                $img_show = !empty($raw_img) ? 'img/' . basename($raw_img) : 'img/default.jpg';
+                $days     = max(1, (int)($item['duration_days'] ?? 1));
+                $subtotal = (int)$item['price'] * (int)$item['quantity'] * $days;
+            ?>
+            <div class="ck-success-item">
+                <img src="<?= htmlspecialchars($img_show) ?>" class="ck-success-item-img"
+                     alt="<?= htmlspecialchars($item['name'] ?? '') ?>"
+                     onerror="this.src='img/default.jpg'">
+                <div class="ck-success-item-name">
+                    <?= htmlspecialchars($item['name'] ?? '') ?>
+                    <div style="font-size:10px;color:#bbb;font-weight:500;margin-top:2px">
+                        <?= $item['quantity'] ?> × <?= $days ?> ngày
+                    </div>
+                </div>
+                <div class="ck-success-item-price"><?= number_format($subtotal) ?>đ</div>
+            </div>
+            <?php endforeach; ?>
+        </div>
+        <?php endif; ?>
+
+        <!-- Action buttons -->
+        <div class="ck-success-actions">
+            <a href="orders.php" class="ck-success-btn primary">
+                <i class="fa-solid fa-receipt" style="margin-right:6px"></i> Xem đơn hàng
+            </a>
+            <a href="ao_dai.php" class="ck-success-btn ghost">
+                <i class="fa-solid fa-sparkles" style="margin-right:6px"></i> Tiếp tục thuê đồ
             </a>
         </div>
-    
-    <?php else: ?>
+    </div>
+</div>
 
-        <div class="stepper">
-            <div class="step">
-                <div class="step-num"><i class="fas fa-check"></i></div>
-                <span>Giỏ hàng</span>
+<?php else: ?>
+
+<!-- ══════════════════════════════════════
+     CHECKOUT FORM
+══════════════════════════════════════ -->
+<form method="POST" class="ck-layout" id="ckForm">
+
+    <!-- ── LEFT: FORM ── -->
+    <div class="ck-form-panel">
+
+        <!-- Error -->
+        <?php if ($error): ?>
+        <div class="ck-error">
+            <i class="fa-solid fa-triangle-exclamation"></i>
+            <?= htmlspecialchars($error) ?>
+        </div>
+        <?php endif; ?>
+
+        <!-- Section 1: Thông tin nhận hàng -->
+        <div class="ck-section">
+            <div class="ck-section-head">
+                <div class="ck-section-head-icon"><i class="fa-solid fa-user"></i></div>
+                <div class="ck-section-title">Thông tin nhận hàng</div>
             </div>
-            <div class="step active">
-                <div class="step-num">2</div>
-                <span>Thanh toán</span>
-            </div>
-            <div class="step">
-                <div class="step-num">3</div>
-                <span>Hoàn tất</span>
+            <div class="ck-section-body">
+                <div class="ck-field-row">
+                    <div class="ck-field">
+                        <label class="ck-field-label">Họ và tên <span class="req">*</span></label>
+                        <input type="text" name="fullname" class="ck-input" required
+                               value="<?= htmlspecialchars($_POST['fullname'] ?? $prefillName) ?>"
+                               placeholder="Nguyễn Thị Hoa">
+                    </div>
+                    <div class="ck-field">
+                        <label class="ck-field-label">Số điện thoại <span class="req">*</span></label>
+                        <input type="tel" name="phone" class="ck-input" required
+                               value="<?= htmlspecialchars($_POST['phone'] ?? $prefillPhone) ?>"
+                               placeholder="09x xxx xxxx">
+                    </div>
+                </div>
+                <div class="ck-field">
+                    <label class="ck-field-label">Địa chỉ nhận đồ <span class="req">*</span></label>
+                    <input type="text" name="address" class="ck-input" required
+                           value="<?= htmlspecialchars($_POST['address'] ?? '') ?>"
+                           placeholder="Số nhà, tên đường, phường/xã, quận/huyện, tỉnh/thành phố">
+                </div>
+                <div class="ck-field">
+                    <label class="ck-field-label">Ghi chú đơn hàng</label>
+                    <textarea name="note" class="ck-input" placeholder="Ví dụ: Giao giờ hành chính, gọi trước khi đến..."><?= htmlspecialchars($_POST['note'] ?? '') ?></textarea>
+                </div>
             </div>
         </div>
 
-        <form method="POST" class="checkout-layout">
-            
-            <div class="col-form">
-                <div class="form-header">
-                    <h2>Thông tin giao hàng</h2>
-                    <p>Vui lòng điền chính xác để chúng tôi giao hàng sớm nhất.</p>
+        <!-- Section 2: Hình thức thanh toán -->
+        <div class="ck-section">
+            <div class="ck-section-head">
+                <div class="ck-section-head-icon"><i class="fa-solid fa-credit-card"></i></div>
+                <div class="ck-section-title">Hình thức thanh toán</div>
+            </div>
+            <div class="ck-section-body">
+                <div class="ck-payment-grid">
+                    <div class="ck-pay-opt">
+                        <input type="radio" name="payment_method" id="pay_cod" value="cod"
+                               <?= ($_POST['payment_method'] ?? 'cod') === 'cod' ? 'checked' : '' ?>>
+                        <label class="ck-pay-label" for="pay_cod">
+                            <span class="ck-pay-icon">💵</span>
+                            <span class="ck-pay-name">COD</span>
+                            <small style="font-size:9px;color:#bbb">Tiền mặt</small>
+                        </label>
+                        <span class="ck-pay-check"><i class="fa-solid fa-check" style="font-size:7px"></i></span>
+                    </div>
+                    <div class="ck-pay-opt">
+                        <input type="radio" name="payment_method" id="pay_bank" value="bank"
+                               <?= ($_POST['payment_method'] ?? '') === 'bank' ? 'checked' : '' ?>>
+                        <label class="ck-pay-label" for="pay_bank">
+                            <span class="ck-pay-icon">🏦</span>
+                            <span class="ck-pay-name">Ngân hàng</span>
+                            <small style="font-size:9px;color:#bbb">Chuyển khoản</small>
+                        </label>
+                        <span class="ck-pay-check"><i class="fa-solid fa-check" style="font-size:7px"></i></span>
+                    </div>
+                    <div class="ck-pay-opt">
+                        <input type="radio" name="payment_method" id="pay_momo" value="momo"
+                               <?= ($_POST['payment_method'] ?? '') === 'momo' ? 'checked' : '' ?>>
+                        <label class="ck-pay-label" for="pay_momo">
+                            <span class="ck-pay-icon">💳</span>
+                            <span class="ck-pay-name">MoMo</span>
+                            <small style="font-size:9px;color:#bbb">Ví điện tử</small>
+                        </label>
+                        <span class="ck-pay-check"><i class="fa-solid fa-check" style="font-size:7px"></i></span>
+                    </div>
                 </div>
 
-                <?php if($error): ?>
-                    <div style="background: #ff7675; color: white; padding: 15px; border-radius: 8px; margin-bottom: 25px;">
-                        <i class="fas fa-exclamation-triangle"></i> <?= $error ?>
-                    </div>
-                <?php endif; ?>
-
-                <div class="field-row">
-                    <div class="field-group">
-                        <label class="field-label">Họ và tên</label>
-                        <input type="text" name="fullname" class="input-modern" required 
-                               value="<?= isset($_SESSION['username']) ? $_SESSION['username'] : '' ?>" 
-                               placeholder="Ví dụ: Nguyễn Văn A">
-                    </div>
-                    <div class="field-group">
-                        <label class="field-label">Số điện thoại (*)</label>
-                        <input type="tel" name="phone" class="input-modern" required placeholder="09xxx...">
-                    </div>
+                <!-- Bank info (shown when bank is selected) -->
+                <div id="bankInfo" style="display:none; background:#fff8fb; border:1.5px solid #ecdde4; padding:16px; font-size:12px; color:#555; line-height:1.8;">
+                    <strong style="color:#2f1c26;display:block;margin-bottom:8px;font-size:11px;text-transform:uppercase;letter-spacing:1px">
+                        <i class="fa-solid fa-building-columns" style="color:var(--accent-pink)"></i> Thông tin chuyển khoản
+                    </strong>
+                    Ngân hàng: <strong>Vietcombank</strong><br>
+                    Số tài khoản: <strong>1234 5678 9012</strong><br>
+                    Tên TK: <strong>QHTN FASHION</strong><br>
+                    Nội dung: <strong>QHTN + Tên + SĐT</strong>
                 </div>
-
-                <div class="field-group">
-                    <label class="field-label">Địa chỉ nhận hàng</label>
-                    <input type="text" name="address" class="input-modern" required placeholder="Số nhà, đường, phường/xã, quận/huyện...">
+                <!-- MoMo info -->
+                <div id="momoInfo" style="display:none; background:#fff8fb; border:1.5px solid #ecdde4; padding:16px; font-size:12px; color:#555; line-height:1.8;">
+                    <strong style="color:#2f1c26;display:block;margin-bottom:8px;font-size:11px;text-transform:uppercase;letter-spacing:1px">
+                        <i class="fa-solid fa-mobile-screen" style="color:var(--accent-pink)"></i> Ví MoMo
+                    </strong>
+                    Số điện thoại MoMo: <strong>0986 772 017</strong><br>
+                    Tên: <strong>QHTN Fashion</strong><br>
+                    Nội dung: <strong>QHTN + Tên + SĐT</strong>
                 </div>
+            </div>
+        </div>
 
-                <div class="field-group">
-                    <label class="field-label">Ghi chú đơn hàng</label>
-                    <textarea name="note" class="input-modern" placeholder="Ví dụ: Giao hàng giờ hành chính, gọi trước khi giao..."></textarea>
+        <!-- Section 3: Ghi chú dịch vụ -->
+        <div class="ck-section">
+            <div class="ck-section-head">
+                <div class="ck-section-head-icon"><i class="fa-solid fa-shield-halved"></i></div>
+                <div class="ck-section-title">Cam kết dịch vụ</div>
+            </div>
+            <div class="ck-section-body" style="flex-direction:row;flex-wrap:wrap;gap:12px">
+                <?php foreach ([
+                    ['fa-vihara','Trang phục đã vệ sinh và được kiểm tra trước khi giao'],
+                    ['fa-rotate-left','Đặt cọc được hoàn trả sau khi trả đồ nguyên vẹn'],
+                    ['fa-headset','Hỗ trợ 24/7 · Giao nhận tận nơi trong TP. Đà Nẵng'],
+                ] as [$icon, $text]): ?>
+                <div style="display:flex;align-items:flex-start;gap:10px;font-size:12px;color:#888;flex:1;min-width:200px">
+                    <i class="fa-solid <?= $icon ?>" style="color:var(--accent-pink);margin-top:2px;flex-shrink:0"></i>
+                    <span><?= $text ?></span>
+                </div>
+                <?php endforeach; ?>
+            </div>
+        </div>
+
+    </div><!-- .ck-form-panel -->
+
+    <!-- ── RIGHT: RECEIPT ── -->
+    <div class="ck-receipt">
+        <div class="ck-receipt-head">
+            <div class="ck-receipt-title">
+                <i class="fa-solid fa-receipt" style="margin-right:8px;opacity:0.6"></i>
+                Đơn hàng (<?= count($_SESSION['cart']) ?> sản phẩm)
+            </div>
+        </div>
+        <div class="ck-receipt-body">
+            <!-- Items -->
+            <div class="ck-receipt-items">
+                <?php foreach ($_SESSION['cart'] as $item):
+                    $raw_img  = $item['image'] ?? '';
+                    $img_show = !empty($raw_img) ? 'img/' . basename($raw_img) : 'img/default.jpg';
+                    $days     = max(1, (int)($item['duration_days'] ?? 1));
+                    $subtotal = (int)$item['price'] * (int)$item['quantity'] * $days;
+                ?>
+                <div class="ck-receipt-item">
+                    <img src="<?= htmlspecialchars($img_show) ?>"
+                         class="ck-receipt-item-img"
+                         alt="<?= htmlspecialchars($item['name'] ?? '') ?>"
+                         onerror="this.src='img/default.jpg'">
+                    <div class="ck-receipt-item-info">
+                        <div class="ck-receipt-item-name"><?= htmlspecialchars($item['name'] ?? '') ?></div>
+                        <div class="ck-receipt-item-meta">
+                            <?= (int)$item['quantity'] ?> cái · <?= $days ?> ngày
+                            <?php if (!empty($item['variant_size'])): ?>
+                            · <?= htmlspecialchars($item['variant_size']) ?>
+                            <?php endif; ?>
+                        </div>
+                    </div>
+                    <div class="ck-receipt-item-price"><?= number_format($subtotal) ?>đ</div>
+                </div>
+                <?php endforeach; ?>
+            </div>
+
+            <!-- Pricing -->
+            <div class="ck-receipt-pricing">
+                <div class="ck-price-row">
+                    <span class="ck-price-label">Tạm tính</span>
+                    <span class="ck-price-value"><?= number_format($total) ?>đ</span>
+                </div>
+                <div class="ck-price-row">
+                    <span class="ck-price-label">Phí vận chuyển</span>
+                    <span class="ck-price-value free">Miễn phí</span>
+                </div>
+                <div class="ck-price-row">
+                    <span class="ck-price-label">Giảm giá</span>
+                    <span class="ck-price-value free">0đ</span>
                 </div>
             </div>
 
-            <div class="col-receipt">
-                <div class="order-receipt">
-                    <div class="receipt-header">
-                        <div class="receipt-title">Đơn hàng của bạn</div>
-                        <div style="font-size: 13px; color: #b2bec3;"><?= count($_SESSION['cart']) ?> sản phẩm</div>
-                    </div>
-
-                    <div class="cart-list">
-                        <?php foreach($_SESSION['cart'] as $item): 
-                            $raw_img = isset($item['image']) ? $item['image'] : '';
-                            $filename = basename($raw_img); 
-                            $img_show = (empty($filename) || $filename == 'default.jpg') ? 'img/default.jpg' : 'img/' . $filename;
-                        ?>
-                        <div class="cart-item">
-                            <img src="<?= htmlspecialchars($img_show) ?>" class="item-img">
-                            <div class="item-details">
-                                <div class="item-name"><?= htmlspecialchars($item['name']) ?></div>
-                                <div class="item-meta">SL: <?= $item['quantity'] ?></div>
-                            </div>
-                            <div class="item-price"><?= number_format($item['price'] * $item['quantity']) ?>đ</div>
-                        </div>
-                        <?php endforeach; ?>
-                    </div>
-
-                    <div class="price-summary">
-                        <div class="summary-row">
-                            <span>Tạm tính</span>
-                            <span><?= number_format($total) ?>đ</span>
-                        </div>
-                        <div class="summary-row">
-                            <span>Phí vận chuyển</span>
-                            <span style="color: #00b894;">Miễn phí</span>
-                        </div>
-                        <div class="total-row">
-                            <span>Tổng cộng</span>
-                            <span><?= number_format($total) ?>đ</span>
-                        </div>
-                    </div>
-
-                    <button type="submit" name="checkout" class="btn-confirm">
-                        THANH TOÁN NGAY
-                    </button>
-                    
-                    <a href="cart.php" class="back-link">Quay lại giỏ hàng</a>
-                </div>
+            <!-- Total -->
+            <div class="ck-price-total">
+                <span class="ck-price-total-label">Tổng cộng</span>
+                <span class="ck-price-total-value"><?= number_format($total) ?>đ</span>
             </div>
 
-        </form>
+            <!-- Submit -->
+            <div class="ck-submit-wrap">
+                <button type="submit" name="checkout" class="ck-submit-btn" id="submitBtn">
+                    <i class="fa-solid fa-lock" style="margin-right:6px"></i>
+                    Xác nhận đặt thuê
+                </button>
+                <a href="cart.php" class="ck-back-link">
+                    <i class="fa-solid fa-arrow-left" style="margin-right:4px"></i>
+                    Quay lại giỏ hàng
+                </a>
+            </div>
+        </div>
+    </div><!-- .ck-receipt -->
 
-    <?php endif; ?>
-</div>
+</form>
+
+<?php endif; ?>
+
+</div><!-- .ck-main -->
+</div><!-- .ck-page -->
+
+<script>
+(function() {
+    // ── Payment method toggle ──
+    const radios = document.querySelectorAll('input[name="payment_method"]');
+    const bankInfo = document.getElementById('bankInfo');
+    const momoInfo = document.getElementById('momoInfo');
+
+    function updatePayInfo() {
+        const val = document.querySelector('input[name="payment_method"]:checked')?.value;
+        if (bankInfo) bankInfo.style.display = val === 'bank' ? 'block' : 'none';
+        if (momoInfo) momoInfo.style.display = val === 'momo' ? 'block' : 'none';
+    }
+
+    radios.forEach(r => r.addEventListener('change', updatePayInfo));
+    updatePayInfo();
+
+    // ── Submit loading state ──
+    const form = document.getElementById('ckForm');
+    const btn  = document.getElementById('submitBtn');
+    if (form && btn) {
+        form.addEventListener('submit', function (e) {
+            // Validate required fields first
+            const req = form.querySelectorAll('[required]');
+            let valid = true;
+            req.forEach(function(el) {
+                if (!el.value.trim()) {
+                    el.style.borderColor = '#e84a5f';
+                    valid = false;
+                } else {
+                    el.style.borderColor = '';
+                }
+            });
+            if (!valid) {
+                e.preventDefault();
+                const firstInvalid = form.querySelector('[required]:not([value=""]):not(:valid), [required][value=""]');
+                if (firstInvalid) firstInvalid.focus();
+                return false;
+            }
+            // Delay disable so form data is captured by browser first
+            setTimeout(function() {
+                btn.disabled = true;
+                btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin" style="margin-right:6px"></i> Đang xử lý...';
+            }, 50);
+        });
+    }
+})();
+</script>
+
+<?php include 'footer.php'; ?>

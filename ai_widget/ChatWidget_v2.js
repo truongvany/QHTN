@@ -49,7 +49,7 @@ class AIChartWidget {
                     <div class="ai-chat-header">
                         <div class="ai-chat-header-info">
                             <div class="ai-chat-title">
-                                <div class="ai-chat-name">Tư Vấn Áo Dài AI</div>
+                                <div class="ai-chat-name">Atelier</div>
                                 <div class="ai-chat-status">
                                     <span class="ai-status-dot"></span>
                                     Online
@@ -229,7 +229,7 @@ class AIChartWidget {
             const welcomeMsg = {
                 id: `msg-${Date.now()}`,
                 sender: 'ai',
-                text: '🎀 Xin chào! Tôi là trợ lý ảo của QHTN Fashion Rental. Mình có thể giúp bạn tìm áo dài, tư vấn size, kiểm tra đơn hàng hoặc trả lời bất kỳ câu hỏi nào. Bạn muốn hỏi gì?',
+                text: 'Xin chào, chúc Quý khách một ngày tốt lành! ❤ Đây là Atelier, trợ lý ảo của QHTN Fashion Rental. Quý khách muốn Atelier hỗ trợ về vấn đề gì ạ?',
                 timestamp: new Date().toISOString()
             };
             this.messages.push(welcomeMsg);

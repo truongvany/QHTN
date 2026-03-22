@@ -51,7 +51,26 @@ if ($startDateTime && $endDateTime) {
     $params[] = $endDateTime;
 }
 
-$sql .= " GROUP BY p.id ORDER BY p.id DESC";
+$sql .= " GROUP BY p.id";
+
+// Đếm tổng số lượng cho phân trang
+$countSql = "SELECT COUNT(*) FROM ($sql) AS count_query";
+$countStmt = $conn->prepare($countSql);
+$countStmt->execute($params);
+$total_items = $countStmt->fetchColumn();
+
+// Xử lý biến trang
+$limit = 15;
+$page = isset($_GET['page']) && is_numeric($_GET['page']) ? (int)$_GET['page'] : 1;
+if ($page < 1) $page = 1;
+
+$total_pages = ceil($total_items / $limit);
+if ($total_pages > 0 && $page > $total_pages) $page = $total_pages;
+
+$offset = ($page - 1) * $limit;
+
+// Thêm sắp xếp và limit offset
+$sql .= " ORDER BY p.id DESC LIMIT $limit OFFSET $offset";
 $stmt = $conn->prepare($sql);
 $stmt->execute($params);
 $products = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -170,9 +189,155 @@ $products = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     </div>
                 <?php endif; ?>
             </div>
+            
+            <!-- ====== PHÂN TRANG ====== -->
+            <?php if (isset($total_pages) && $total_pages > 1): ?>
+                <div class="pagination-premium">
+                    <?php 
+                    $queryParams = $_GET;
+                    
+                    $prevPage = max(1, $page - 1);
+                    $queryParams['page'] = $prevPage;
+                    $prevUrl = '?' . http_build_query($queryParams);
+                    
+                    $nextPage = min($total_pages, $page + 1);
+                    $queryParams['page'] = $nextPage;
+                    $nextUrl = '?' . http_build_query($queryParams);
+                    ?>
+                    
+                    <a href="<?= htmlspecialchars($prevUrl) ?>" class="page-link <?= ($page <= 1) ? 'disabled' : '' ?>">
+                        <i class="fa-solid fa-chevron-left"></i> Pre
+                    </a>
+                    
+                    <div class="page-numbers">
+                        <?php 
+                        // Hiển thị tối đa 5 số trang ở giữa
+                        $start_page = max(1, $page - 2);
+                        $end_page = min($total_pages, $page + 2);
+                        
+                        // Chỉnh lề lệch nếu ở đầu / cuối để vẫn giữ đủ 5 nút
+                        if ($end_page - $start_page < 4) {
+                            if ($start_page == 1) {
+                                $end_page = min($total_pages, 5);
+                            } else if ($end_page == $total_pages) {
+                                $start_page = max(1, $total_pages - 4);
+                            }
+                        }
+                        
+                        if ($start_page > 1): ?>
+                            <a href="?<?= htmlspecialchars(http_build_query(array_merge($_GET, ['page' => 1]))) ?>" class="page-num" title="Trang đầu">1</a>
+                            <?php if ($start_page > 2): ?>
+                                <span class="page-dots">...</span>
+                            <?php endif; ?>
+                        <?php endif; ?>
+
+                        <?php for ($i = $start_page; $i <= $end_page; $i++): 
+                            $queryParams['page'] = $i;
+                            $pageUrl = '?' . http_build_query($queryParams);
+                        ?>
+                            <a href="<?= htmlspecialchars($pageUrl) ?>" class="page-num <?= ($i == $page) ? 'active' : '' ?>">
+                                <?= $i ?>
+                            </a>
+                        <?php endfor; ?>
+
+                        <?php if ($end_page < $total_pages): ?>
+                            <?php if ($end_page < $total_pages - 1): ?>
+                                <span class="page-dots">...</span>
+                            <?php endif; ?>
+                            <a href="?<?= htmlspecialchars(http_build_query(array_merge($_GET, ['page' => $total_pages]))) ?>" class="page-num" title="Trang cuối"><?= $total_pages ?></a>
+                        <?php endif; ?>
+                    </div>
+                    
+                    <a href="<?= htmlspecialchars($nextUrl) ?>" class="page-link <?= ($page >= $total_pages) ? 'disabled' : '' ?>">
+                        Next <i class="fa-solid fa-chevron-right"></i>
+                    </a>
+                </div>
+            <?php endif; ?>
+            <!-- ====== HẾT PHÂN TRANG ====== -->
+
         </div>
     </div>
 </div>
+<style>
+.pagination-premium {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 12px;
+    margin-top: 50px;
+    margin-bottom: 20px;
+    font-family: inherit;
+}
+.pagination-premium a {
+    text-decoration: none;
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+.page-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 24px;
+    background: #fff;
+    border: 1px solid #ffb6c1;
+    color: #ff4757;
+    border-radius: 9999px;
+    font-weight: 600;
+    font-size: 14px;
+    box-shadow: 0 4px 10px rgba(255, 182, 193, 0.15);
+}
+.page-link i {
+    font-size: 12px;
+}
+.page-link:hover:not(.disabled) {
+    background: #ff4757;
+    border-color: #ff4757;
+    color: #fff;
+    box-shadow: 0 6px 15px rgba(255, 71, 87, 0.3);
+    transform: translateY(-2px);
+}
+.page-link.disabled {
+    opacity: 0.4;
+    pointer-events: none;
+    border-color: #eee;
+    color: #aaa;
+    background: #fafafa;
+    box-shadow: none;
+}
+.page-numbers {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+}
+.page-num {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 50%;
+    color: #555;
+    font-weight: 600;
+    font-size: 14px;
+    border: 1px solid transparent;
+}
+.page-num:hover:not(.active) {
+    background: #fff0f5;
+    color: #ff4757;
+}
+.page-num.active {
+    background: #ff4757;
+    color: #fff;
+    box-shadow: 0 4px 12px rgba(255, 71, 87, 0.3);
+    pointer-events: none;
+}
+.page-dots {
+    color: #ffb6c1;
+    font-weight: bold;
+    letter-spacing: 2px;
+    padding: 0 5px;
+}
+</style>
+
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {

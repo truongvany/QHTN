@@ -611,67 +611,266 @@ include 'header.php';
 </section>
 
 <div class="container" style="max-width: 1400px; margin: 0 auto; padding: 0 5%;">
-    <!-- ===== CATEGORIES SECTION ===== -->
-    <section class="categories-section">
-        <div class="categories-title">Danh Mục Sản Phẩm</div>
-        <div class="categories-grid">
-            <a href="index.php" class="category-chip active">
-                <i class="fas fa-th"></i> Tất cả
-            </a>
-            <?php foreach ($categories as $cat): ?>
-                <a href="<?php 
-                    // Map category to appropriate page
-                    $cat_map = [
-                        '1' => 'ao_dai.php',
-                        '2' => 'vay_di_bien.php',
-                        '3' => 'vay_thiet_ke.php',
-                        '4' => 'set_quan_ao.php',
-                        '5' => 'giay.php',
-                        '6' => 'phu_kien.php'
-                    ];
-                    echo isset($cat_map[$cat['id']]) ? $cat_map[$cat['id']] : 'index.php';
-                ?>" class="category-chip">
-                    <i class="fas fa-tag"></i> <?php echo htmlspecialchars($cat['name']); ?>
-                </a>
-            <?php endforeach; ?>
-        </div>
-    </section>
+    <style>
+    /* ===== CUTE COLLECTION CSS ===== */
+    .collection-section {
+        margin: 0px auto 60px;
+    }
 
-    <!-- ===== MAIN PRODUCTS SECTION ===== -->
+    .collection-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 24px;
+        flex-wrap: wrap;
+        gap: 16px;
+    }
+
+    .collection-title {
+        font-size: 20px;
+        font-weight: 700;
+        color: #111;
+        text-transform: uppercase;
+        margin: 0;
+        letter-spacing: 0.5px;
+    }
+
+    .collection-categories {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+
+    .collection-categories .cat-btn {
+        padding: 6px 16px;
+        border-radius: 99px;
+        background: #f8f9fa;
+        color: #555;
+        font-size: 13px;
+        font-weight: 500;
+        text-decoration: none;
+        border: 1px solid #eee;
+        transition: all 0.2s ease;
+    }
+
+    .collection-categories .cat-btn.active,
+    .collection-categories .cat-btn:hover {
+        background: #111;
+        color: #fff;
+        border-color: #111;
+    }
+
+    .collection-grid {
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        gap: 12px;
+    }
+
+    .collection-big-card {
+        grid-column: 1 / 2;
+        grid-row: 1 / 3;
+        border-radius: 4px;
+        overflow: hidden;
+    }
+
+    .collection-big-card img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.5s ease;
+    }
+
+    .collection-big-card:hover img {
+        transform: scale(1.05);
+    }
+
+    .cute-product-card {
+        background: #fff;
+        border: 1px solid #f0f0f0;
+        border-radius: 4px;
+        overflow: hidden;
+        text-align: center;
+        text-decoration: none;
+        display: flex;
+        flex-direction: column;
+        transition: box-shadow 0.2s ease, transform 0.2s ease;
+        padding-bottom: 12px;
+    }
+
+    .cute-product-card:hover {
+        box-shadow: 0 4px 15px rgba(0,0,0,0.06);
+        transform: translateY(-2px);
+    }
+
+    .cute-product-img {
+        width: 100%;
+        aspect-ratio: 3/4;
+        object-fit: cover;
+        margin-bottom: 12px;
+    }
+
+    .cute-product-info {
+        padding: 0 12px;
+        display: flex;
+        flex-direction: column;
+        flex: 1;
+    }
+
+    .cute-product-name {
+        font-size: 13px;
+        color: #555;
+        font-weight: 500;
+        line-height: 1.4;
+        margin-bottom: 8px;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        flex-grow: 1;
+    }
+
+    .cute-product-price {
+        font-size: 14px;
+        font-weight: 700;
+        color: #111;
+    }
+
+    .collection-footer {
+        text-align: center;
+        margin-top: 32px;
+    }
+
+    .btn-view-all {
+        display: inline-block;
+        padding: 10px 32px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        font-size: 14px;
+        font-weight: 600;
+        color: #111;
+        text-decoration: none;
+        transition: all 0.2s ease;
+    }
+
+    .btn-view-all:hover {
+        background: #f8f9fa;
+        border-color: #bbb;
+    }
+
+    @media (max-width: 1024px) {
+        .collection-grid {
+            grid-template-columns: repeat(3, 1fr);
+        }
+        .collection-big-card {
+            grid-column: 1 / -1;
+            grid-row: auto;
+            aspect-ratio: 21/9;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .collection-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+    </style>
+
+    <!-- ===== CUTE COLLECTION SECTION ===== -->
     <?php if (!empty($aodai_products)): ?>
-        <section class="main-products">
-            <div class="section-header-premium">
-                <div class="section-accent"></div>
-                <h2>Bộ Sưu Tập Áo Dài</h2>
-                <p>Những thiết kế độc đáo cho bạn</p>
+        <section class="collection-section">
+            <div class="collection-header">
+                <h2 class="collection-title">BỘ SƯU TẬP MỚI</h2>
+                <div class="collection-categories">
+                    <?php 
+                    $cat_count = 0; 
+                    // Bỏ 'Trang chủ', hiển thị trực tiếp danh mục, tối đa 5
+                    foreach ($categories as $index => $cat): 
+                        if ($cat_count >= 5) break; 
+                        $cat_count++;
+                    ?>
+                        <button class="cat-btn <?php echo $index === 0 ? 'active' : ''; ?>" data-category="<?php echo $cat['id']; ?>">
+                            <?php echo htmlspecialchars($cat['name']); ?>
+                        </button>
+                    <?php endforeach; ?>
+                </div>
             </div>
             
-            <div class="products-grid">
-                <?php foreach (array_slice($aodai_products, 0, 12) as $product): ?>
-                    <div class="product-card-premium">
-                        <div class="product-img-container">
-                            <img src="img/<?php echo basename($product['image']); ?>" alt="<?php echo htmlspecialchars($product['name']); ?>">
-                            <span class="product-badge">Cho thuê</span>
+            <div class="collection-grid" id="collection-grid-container">
+                <!-- Big Card (Hình ảnh banner đứng) -->
+                <div class="collection-big-card">
+                    <img src="img/<?php echo basename($aodai_products[0]['image']); ?>" alt="Featured Collection">
+                </div>
+
+                <!-- 8 Sản phẩm nhỏ -->
+                <?php 
+                $small_products = array_slice($aodai_products, 1, 8);
+                foreach ($small_products as $product): ?>
+                    <a href="product_detail.php?id=<?php echo $product['id']; ?>" class="cute-product-card">
+                        <img class="cute-product-img" src="img/<?php echo basename($product['image']); ?>" alt="<?php echo htmlspecialchars($product['name']); ?>">
+                        <div class="cute-product-info">
+                            <div class="cute-product-name"><?php echo htmlspecialchars($product['name']); ?></div>
+                            <div class="cute-product-price"><?php echo number_format($product['price']); ?>đ</div>
                         </div>
-                        <div class="product-content">
-                            <div class="product-category">Áo Dài</div>
-                            <h3 class="product-name"><?php echo htmlspecialchars($product['name']); ?></h3>
-                            <div class="product-price"><?php echo number_format($product['price']); ?> đ/ngày</div>
-                            <div class="product-actions">
-                                <a href="product_detail.php?id=<?php echo $product['id']; ?>" class="btn-view">
-                                    <i class="fas fa-eye"></i> Xem chi tiết
-                                </a>
-                                <button class="btn-cart" onclick="addToCart(<?php echo $product['id']; ?>)" title="Thêm vào giỏ">
-                                    <i class="fas fa-heart"></i>
-                                </button>
-                            </div>
-                        </div>
-                    </div>
+                    </a>
                 <?php endforeach; ?>
             </div>
             
-            <a href="ao_dai.php" class="view-all-btn">Xem tất cả bộ sưu tập →</a>
+            <div class="collection-footer">
+                <a href="ao_dai.php" class="btn-view-all">Xem tất cả bộ sưu tập</a>
+            </div>
         </section>
+
+        <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const catBtns = document.querySelectorAll('.collection-categories .cat-btn');
+            const gridContainer = document.getElementById('collection-grid-container');
+
+            catBtns.forEach(btn => {
+                btn.addEventListener('click', async function(e) {
+                    e.preventDefault();
+                    
+                    // Bỏ qua nếu đang active
+                    if(this.classList.contains('active')) return;
+                    
+                    catBtns.forEach(c => c.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    const catId = this.dataset.category;
+                    
+                    // Hiệu ứng mờ dần và trượt xuống
+                    gridContainer.style.opacity = '0';
+                    gridContainer.style.transform = 'translateY(15px)';
+                    gridContainer.style.transition = 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)';
+                    
+                    try {
+                        const response = await fetch(`api_get_collection.php?category_id=${catId}`);
+                        const html = await response.text();
+                        
+                        setTimeout(() => {
+                            gridContainer.innerHTML = html;
+                            
+                            // Reset transform về phía trên để trượt xuống
+                            gridContainer.style.transition = 'none';
+                            gridContainer.style.transform = 'translateY(-15px)';
+                            
+                            // Ép trình duyệt tính toán lại layout (reflow)
+                            void gridContainer.offsetWidth;
+                            
+                            // Kích hoạt hiệu ứng hiện ra và trượt về đúng chỗ
+                            gridContainer.style.transition = 'all 0.5s cubic-bezier(0.4, 0, 0.2, 1)';
+                            gridContainer.style.opacity = '1';
+                            gridContainer.style.transform = 'translateY(0)';
+                        }, 400); // Timeout khớp với transition out
+                        
+                    } catch (error) {
+                        console.error("Lỗi khi load sản phẩm:", error);
+                        gridContainer.style.opacity = '1';
+                        gridContainer.style.transform = 'translateY(0)';
+                    }
+                });
+            });
+        });
+        </script>
     <?php endif; ?>
 
     <!-- ===== FEATURED SECTION ===== -->

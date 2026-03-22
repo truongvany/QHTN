@@ -1,558 +1,735 @@
 <?php
 require_once 'config.php';
-$pageTitle = "Về Chúng Tôi | QHTN Fashion";
+$pageTitle = "Về QHTN | Fashion & Studio";
 include 'header.php';
 ?>
 
 <style>
-    :root {
-        --hero-overlay: linear-gradient(120deg, rgba(233, 30, 99, 0.55), rgba(0, 0, 0, 0.35));
-        --card-bg: rgba(255, 255, 255, 0.82);
-        --shadow-soft: 0 15px 45px rgba(0, 0, 0, 0.12);
-        --radius-lg: 18px;
-    }
+/* ============================================================
+   VỀ CHÚNG TÔI — QHTN CORPORATE EDITION
+   Sharp edges, enterprise tone, pink-burgundy palette
+============================================================ */
+.ab-page { background: #fff; font-family: 'Montserrat', sans-serif; color: var(--text-color); }
 
-    .about-wrapper {
-        background: #faf7f8;
-        color: #333;
-    }
+/* ─── HERO ─── */
+.ab-hero {
+    position: relative;
+    min-height: 80vh;
+    display: flex;
+    align-items: flex-end;
+    background:
+        linear-gradient(to right, rgba(47,28,38,0.96) 32%, rgba(47,28,38,0.65) 60%, rgba(47,28,38,0.15) 100%),
+        url('img/avatars/hero.webp') center 25% / cover no-repeat;
+    overflow: hidden;
+}
+.ab-hero::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: repeating-linear-gradient(
+        45deg, transparent, transparent 80px,
+        rgba(255,255,255,0.012) 80px, rgba(255,255,255,0.012) 81px
+    );
+}
+.ab-hero-inner {
+    position: relative; z-index: 1;
+    max-width: 1280px; margin: 0 auto;
+    padding: 0 5% 80px;
+    width: 100%;
+}
+.ab-hero-kicker {
+    display: inline-flex; align-items: center; gap: 10px;
+    font-size: 11px; font-weight: 700; letter-spacing: 4px;
+    text-transform: uppercase; color: #f48fb1; margin-bottom: 20px;
+}
+.ab-hero-kicker span { width: 28px; height: 1px; background: #f48fb1; display: inline-block; }
+.ab-hero h1 {
+    font-size: clamp(40px,5vw,68px); font-weight: 900;
+    color: #fff; line-height: 1.02; letter-spacing: -2px;
+    text-transform: uppercase; margin-bottom: 22px;
+    max-width: 680px;
+}
+.ab-hero h1 em { font-style: normal; color: #f48fb1; }
+.ab-hero-desc {
+    font-size: 15px; color: rgba(255,255,255,0.62);
+    line-height: 1.85; max-width: 500px; margin-bottom: 40px;
+}
+.ab-hero-btns { display: flex; gap: 14px; flex-wrap: wrap; }
+.ab-btn-pink {
+    padding: 16px 42px; background: var(--accent-pink); color: #fff;
+    font-size: 12px; font-weight: 800; letter-spacing: 2px;
+    text-transform: uppercase; text-decoration: none;
+    transition: background 0.22s, transform 0.22s;
+}
+.ab-btn-pink:hover { background: var(--hover-pink); transform: translateY(-2px); }
+.ab-btn-ghost {
+    padding: 16px 42px; background: transparent;
+    border: 1.5px solid rgba(255,255,255,0.22); color: rgba(255,255,255,0.72);
+    font-size: 12px; font-weight: 800; letter-spacing: 2px;
+    text-transform: uppercase; text-decoration: none;
+    transition: all 0.22s;
+}
+.ab-btn-ghost:hover { border-color: rgba(255,255,255,0.55); color: #fff; }
 
-    /* Hero */
-    .about-hero {
-        position: relative;
-        min-height: 68vh;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        text-align: center;
-        color: #fff;
-        overflow: hidden;
-        background: var(--hero-overlay), url('img/about-hero.jpg') center/cover no-repeat;
-    }
+/* Scroll indicator */
+.ab-hero-scroll {
+    position: absolute; bottom: 32px; right: 5%;
+    display: flex; flex-direction: column; align-items: center; gap: 6px;
+    z-index: 1;
+}
+.ab-hero-scroll span {
+    writing-mode: vertical-rl; font-size: 10px; letter-spacing: 3px;
+    text-transform: uppercase; color: rgba(255,255,255,0.35); font-weight: 600;
+}
+.ab-hero-scroll-line {
+    width: 1px; height: 48px;
+    background: linear-gradient(to bottom, rgba(255,255,255,0.5), transparent);
+}
 
-    .about-hero::after {
-        content: '';
-        position: absolute;
-        inset: 0;
-        background: linear-gradient(to bottom, rgba(0, 0, 0, 0.15), rgba(0, 0, 0, 0.55));
-    }
+/* ─── METRICS STRIP ─── */
+.ab-metrics {
+    background: #2f1c26; border-top: 3px solid var(--accent-pink);
+}
+.ab-metrics-inner {
+    max-width: 1280px; margin: 0 auto;
+    display: grid; grid-template-columns: repeat(4,1fr);
+}
+.ab-metric {
+    padding: 40px 32px; text-align: center;
+    border-right: 1px solid rgba(255,255,255,0.07);
+}
+.ab-metric:last-child { border-right: none; }
+.ab-metric-num {
+    font-size: 38px; font-weight: 900; color: #fff;
+    line-height: 1; margin-bottom: 8px; letter-spacing: -1px;
+}
+.ab-metric-num span { color: #f48fb1; }
+.ab-metric-label {
+    font-size: 11px; font-weight: 700; color: rgba(255,255,255,0.45);
+    letter-spacing: 2px; text-transform: uppercase; margin-bottom: 4px;
+}
+.ab-metric-sub { font-size: 12px; color: rgba(255,255,255,0.28); line-height: 1.5; }
 
-    .hero-content {
-        position: relative;
-        max-width: 900px;
-        padding: 40px 24px;
-        z-index: 1;
-    }
+/* ─── SECTION SHELL ─── */
+.ab-section { max-width: 1280px; margin: 0 auto; padding: 80px 5%; }
+.ab-section-sm { max-width: 1280px; margin: 0 auto; padding: 56px 5%; }
+.ab-eyebrow {
+    font-size: 11px; font-weight: 700; letter-spacing: 4px;
+    text-transform: uppercase; color: var(--accent-pink);
+    display: flex; align-items: center; gap: 10px; margin-bottom: 10px;
+}
+.ab-eyebrow::before {
+    content: ''; display: inline-block;
+    width: 24px; height: 2px; background: var(--accent-pink);
+}
+.ab-heading {
+    font-size: clamp(28px,3vw,38px); font-weight: 900;
+    color: #2f1c26; line-height: 1.1; letter-spacing: -0.5px;
+    text-transform: uppercase; margin-bottom: 12px;
+}
+.ab-subtext { font-size: 14px; color: #888; line-height: 1.85; max-width: 600px; }
 
-    .hero-kicker {
-        letter-spacing: 6px;
-        text-transform: uppercase;
-        font-size: 13px;
-        margin-bottom: 14px;
-        color: #ffe5ee;
-    }
+/* ─── STORY ─── */
+.ab-story-strip {
+    background: #fff8fb;
+    border-top: 1px solid #f7c8d9; border-bottom: 1px solid #f7c8d9;
+}
+.ab-story-grid {
+    max-width: 1280px; margin: 0 auto; padding: 80px 5%;
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 0; align-items: stretch;
+}
+.ab-story-img {
+    position: relative; overflow: hidden;
+}
+.ab-story-img img {
+    width: 100%; height: 100%; min-height: 420px;
+    object-fit: cover; display: block;
+    filter: brightness(0.92) saturate(1.05);
+}
+.ab-story-img::after {
+    content: '';
+    position: absolute; inset:0;
+    background: linear-gradient(135deg, rgba(233,90,138,0.08) 0%, transparent 60%);
+}
+.ab-story-text {
+    padding: 64px 56px;
+    display: flex; flex-direction: column; justify-content: center;
+    background: #fff;
+}
+.ab-story-text p {
+    font-size: 14px; color: #666; line-height: 1.9;
+    margin-bottom: 18px;
+}
+.ab-story-text p:last-child { margin-bottom: 0; }
+.ab-story-pull {
+    font-size: 20px; font-weight: 800; color: #2f1c26;
+    line-height: 1.4; letter-spacing: -0.3px;
+    border-left: 4px solid var(--accent-pink);
+    padding-left: 20px; margin: 28px 0;
+    font-style: italic;
+}
 
-    .hero-title {
-        font-size: clamp(34px, 4vw, 52px);
-        font-weight: 800;
-        letter-spacing: 2px;
-        margin-bottom: 18px;
-    }
+/* ─── CORE VALUES ─── */
+.ab-values-grid {
+    display: grid; grid-template-columns: repeat(4,1fr);
+    gap: 0; border: 1.5px solid #f7c8d9; margin-top: 48px;
+}
+.ab-value-card {
+    padding: 40px 32px; border-right: 1.5px solid #f7c8d9;
+    transition: background 0.22s;
+}
+.ab-value-card:last-child { border-right: none; }
+.ab-value-card:hover { background: #fff5f8; }
+.ab-value-icon {
+    width: 48px; height: 48px;
+    background: #2f1c26; color: #f48fb1;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px; margin-bottom: 24px;
+}
+.ab-value-title {
+    font-size: 13px; font-weight: 900; text-transform: uppercase;
+    letter-spacing: 1px; color: #2f1c26; margin-bottom: 12px;
+}
+.ab-value-en {
+    font-size: 10px; font-weight: 700; letter-spacing: 2px;
+    color: var(--accent-pink); text-transform: uppercase; margin-bottom: 8px;
+}
+.ab-value-desc { font-size: 13px; color: #777; line-height: 1.75; }
 
-    .hero-subtitle {
-        font-size: 17px;
-        max-width: 760px;
-        margin: 0 auto 26px;
-        line-height: 1.7;
-        color: #f7f2f4;
-    }
+/* ─── TIMELINE ─── */
+.ab-timeline-bg {
+    background: #2f1c26;
+    border-top: 1px solid rgba(255,255,255,0.06);
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+.ab-timeline-inner {
+    max-width: 1280px; margin: 0 auto; padding: 80px 5%;
+}
+.ab-timeline {
+    margin-top: 52px;
+    display: grid; grid-template-columns: repeat(5,1fr);
+    gap: 0; border: 1px solid rgba(255,255,255,0.08);
+    position: relative;
+}
+.ab-timeline::before {
+    content: '';
+    position: absolute; left: 0; right: 0;
+    top: 48px; height: 2px;
+    background: linear-gradient(90deg, var(--accent-pink), transparent);
+    z-index: 0;
+}
+.ab-tl-item {
+    padding: 40px 28px; border-right: 1px solid rgba(255,255,255,0.06);
+    position: relative; z-index: 1;
+    transition: background 0.22s;
+}
+.ab-tl-item:last-child { border-right: none; }
+.ab-tl-item:hover { background: rgba(255,255,255,0.04); }
+.ab-tl-dot {
+    width: 14px; height: 14px; background: var(--accent-pink);
+    margin-bottom: 18px; position: relative;
+}
+.ab-tl-dot::after {
+    content: '';
+    position: absolute; top: -4px; left: -4px;
+    width: 22px; height: 22px;
+    border: 1px solid rgba(233,90,138,0.3);
+}
+.ab-tl-year {
+    font-size: 28px; font-weight: 900; color: #fff;
+    letter-spacing: -1px; margin-bottom: 8px; line-height: 1;
+}
+.ab-tl-year span { font-size: 14px; color: #f48fb1; font-weight: 700; letter-spacing: 0; }
+.ab-tl-title {
+    font-size: 12px; font-weight: 800; text-transform: uppercase;
+    letter-spacing: 1px; color: rgba(255,255,255,0.85); margin-bottom: 10px;
+}
+.ab-tl-desc { font-size: 12.5px; color: rgba(255,255,255,0.38); line-height: 1.7; }
 
-    .hero-cta {
-        display: inline-flex;
-        gap: 12px;
-        align-items: center;
-        justify-content: center;
-        padding: 12px 28px;
-        border-radius: 999px;
-        background: #fff;
-        color: #d81b60;
-        font-weight: 700;
-        border: none;
-        box-shadow: 0 12px 30px rgba(0, 0, 0, 0.16);
-        transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
-        cursor: pointer;
-    }
+/* ─── GALLERY ─── */
+.ab-gallery {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr;
+    grid-template-rows: auto auto;
+    gap: 3px; margin-top: 48px;
+}
+.ab-gallery-item { overflow: hidden; position: relative; }
+.ab-gallery-item:first-child { grid-row: 1 / 3; }
+.ab-gallery-item img {
+    width: 100%; height: 100%; min-height: 240px;
+    object-fit: cover; display: block;
+    transition: transform 0.45s ease, filter 0.45s ease;
+    filter: brightness(0.95) saturate(1.05);
+}
+.ab-gallery-item:hover img { transform: scale(1.04); filter: brightness(1) saturate(1.1); }
+.ab-gallery-caption {
+    position: absolute; bottom: 0; left: 0; right: 0;
+    padding: 12px 16px;
+    background: linear-gradient(transparent, rgba(47,28,38,0.82));
+    font-size: 11px; font-weight: 600; color: rgba(255,255,255,0.75);
+    letter-spacing: 1px; text-transform: uppercase;
+    opacity: 0; transform: translateY(6px);
+    transition: all 0.3s ease;
+}
+.ab-gallery-item:hover .ab-gallery-caption { opacity: 1; transform: translateY(0); }
 
-    .hero-cta:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 18px 40px rgba(0, 0, 0, 0.2);
-        background: #ffe6ef;
-    }
+/* ─── TEAM ─── */
+.ab-team-grid {
+    display: grid; grid-template-columns: repeat(3,1fr);
+    gap: 0; border: 1.5px solid #f7c8d9; margin-top: 48px;
+}
+.ab-team-card {
+    border-right: 1.5px solid #f7c8d9;
+    display: flex; flex-direction: column;
+}
+.ab-team-card:last-child { border-right: none; }
+.ab-team-img-wrap {
+    position: relative; overflow: hidden; aspect-ratio: 3/4;
+}
+.ab-team-img-wrap img {
+    width: 100%; height: 100%; object-fit: cover; object-position: top;
+    transition: transform 0.45s ease;
+}
+.ab-team-card:hover .ab-team-img-wrap img { transform: scale(1.04); }
+.ab-team-info { padding: 28px 28px 32px; }
+.ab-team-role {
+    font-size: 10px; font-weight: 700; letter-spacing: 3px;
+    text-transform: uppercase; color: var(--accent-pink); margin-bottom: 6px;
+}
+.ab-team-name {
+    font-size: 20px; font-weight: 900; color: #2f1c26;
+    letter-spacing: -0.3px; text-transform: uppercase; margin-bottom: 12px;
+}
+.ab-team-bio { font-size: 13px; color: #888; line-height: 1.75; }
+.ab-team-tag {
+    display: inline-flex; align-items: center; gap: 6px;
+    margin-top: 16px; padding: 6px 14px;
+    background: #fff0f5; border-left: 2px solid var(--accent-pink);
+    font-size: 11px; color: #888; font-weight: 600;
+}
 
-    /* Section shell */
-    .section {
-        padding: 80px 5%;
-    }
+/* ─── CONTACT SECTION ─── */
+.ab-contact-bg {
+    border-top: 1px solid #f7c8d9;
+    border-bottom: 1px solid #f7c8d9;
+    background: #fff8fb;
+}
+.ab-contact-inner {
+    max-width: 1280px; margin: 0 auto; padding: 80px 5%;
+    display: grid; grid-template-columns: 1fr 1fr; gap: 72px; align-items: start;
+}
+.ab-contact-info {}
+.ab-contact-rows { margin-top: 36px; display: flex; flex-direction: column; gap: 0; }
+.ab-contact-row {
+    display: flex; align-items: flex-start; gap: 20px;
+    padding: 22px 0; border-bottom: 1px solid #f0dce4;
+}
+.ab-contact-row:first-child { border-top: 1px solid #f0dce4; }
+.ab-contact-icon {
+    flex-shrink: 0; width: 40px; height: 40px;
+    background: #2f1c26; color: #f48fb1;
+    display: flex; align-items: center; justify-content: center; font-size: 15px;
+}
+.ab-contact-label {
+    font-size: 10px; font-weight: 700; letter-spacing: 2px;
+    text-transform: uppercase; color: var(--accent-pink); margin-bottom: 4px;
+}
+.ab-contact-val { font-size: 14px; font-weight: 600; color: #2f1c26; line-height: 1.5; }
+.ab-contact-val small { font-weight: 500; color: #888; font-size: 12px; display: block; }
 
-    .section-narrow {
-        max-width: 1200px;
-        margin: 0 auto;
-    }
+.ab-contact-form {}
+.ab-form-label {
+    font-size: 10px; font-weight: 700; letter-spacing: 2px;
+    text-transform: uppercase; color: #888; display: block; margin-bottom: 8px;
+}
+.ab-form-input, .ab-form-textarea {
+    width: 100%; padding: 14px 16px;
+    border: 1.5px solid #f0d0dc; background: #fff;
+    font-size: 13px; font-family: 'Montserrat', sans-serif;
+    color: #2f1c26; outline: none;
+    transition: border-color 0.2s;
+    margin-bottom: 16px; display: block;
+}
+.ab-form-input:focus, .ab-form-textarea:focus { border-color: var(--accent-pink); }
+.ab-form-textarea { min-height: 120px; resize: vertical; }
+.ab-form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.ab-form-submit {
+    width: 100%; padding: 16px;
+    background: var(--accent-pink); color: #fff;
+    font-size: 12px; font-weight: 800; letter-spacing: 2px;
+    text-transform: uppercase; border: none; cursor: pointer;
+    transition: background 0.22s, transform 0.22s;
+}
+.ab-form-submit:hover { background: var(--hover-pink); transform: translateY(-1px); }
+.ab-form-note { font-size: 11px; color: #bbb; margin-top: 10px; text-align: center; }
 
-    .section-header {
-        text-align: center;
-        margin-bottom: 40px;
-    }
+/* ─── CTA BOTTOM ─── */
+.ab-cta {
+    background: linear-gradient(105deg, #2f1c26 0%, #5a2138 50%, #8b3057 100%);
+    padding: 88px 5%; text-align: center; position: relative; overflow: hidden;
+}
+.ab-cta::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: radial-gradient(circle at 50% 130%, rgba(233,90,138,0.28) 0%, transparent 60%);
+}
+.ab-cta h2 {
+    font-size: clamp(30px,4vw,48px); font-weight: 900; color: #fff;
+    letter-spacing: -1px; text-transform: uppercase; margin-bottom: 14px;
+    position: relative;
+}
+.ab-cta p { font-size: 15px; color: rgba(255,255,255,0.5); margin-bottom: 40px; position: relative; }
+.ab-cta-btns { display: flex; justify-content: center; gap: 16px; flex-wrap: wrap; position: relative; }
+.ab-cta-btns a {
+    padding: 18px 52px; font-size: 12px; font-weight: 800;
+    letter-spacing: 2px; text-transform: uppercase;
+    text-decoration: none; transition: all 0.22s; display: inline-block;
+}
+.ab-btn-white { background: #fff; color: #2f1c26; }
+.ab-btn-white:hover { background: #ffe8f0; }
+.ab-btn-border { border: 1.5px solid rgba(255,255,255,0.2); color: rgba(255,255,255,0.65); }
+.ab-btn-border:hover { border-color: rgba(255,255,255,0.5); color: #fff; }
 
-    .section-kicker {
-        font-size: 13px;
-        letter-spacing: 5px;
-        text-transform: uppercase;
-        color: #c77;
-        margin-bottom: 10px;
-    }
-
-    .section-title {
-        font-size: clamp(26px, 3vw, 36px);
-        font-weight: 800;
-        color: #222;
-        letter-spacing: 1px;
-    }
-
-    .section-desc {
-        color: #666;
-        max-width: 820px;
-        margin: 12px auto 0;
-        line-height: 1.7;
-    }
-
-    /* Story */
-    .story-grid {
-        display: grid;
-        grid-template-columns: 1.05fr 0.95fr;
-        gap: 48px;
-        align-items: center;
-    }
-
-    .story-text {
-        background: var(--card-bg);
-        border-radius: var(--radius-lg);
-        padding: 32px;
-        box-shadow: var(--shadow-soft);
-        backdrop-filter: blur(6px);
-        line-height: 1.8;
-        color: #444;
-    }
-
-    .story-text h3 {
-        font-size: 20px;
-        margin-bottom: 14px;
-        color: #c2185b;
-        letter-spacing: 0.5px;
-    }
-
-    .story-text p { margin-bottom: 14px; }
-
-    .story-portrait {
-        position: relative;
-    }
-
-    .story-portrait img {
-        width: 100%;
-        border-radius: var(--radius-lg);
-        box-shadow: var(--shadow-soft);
-        object-fit: cover;
-    }
-
-    /* Stats */
-    .stats-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
-        gap: 18px;
-    }
-
-    .stat-card {
-        background: #fff;
-        border-radius: 14px;
-        padding: 22px 20px;
-        text-align: center;
-        box-shadow: 0 10px 28px rgba(0, 0, 0, 0.08);
-        border: 1px solid #f4d7df;
-        transition: transform 0.2s ease, box-shadow 0.2s ease;
-    }
-
-    .stat-card:hover { transform: translateY(-4px); box-shadow: 0 14px 38px rgba(0, 0, 0, 0.12); }
-
-    .stat-number {
-        font-size: 30px;
-        font-weight: 800;
-        color: #c2185b;
-        margin-bottom: 6px;
-    }
-
-    .stat-label { color: #666; font-weight: 600; }
-
-    /* Values */
-    .value-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-        gap: 18px;
-    }
-
-    .value-card {
-        background: var(--card-bg);
-        border-radius: var(--radius-lg);
-        padding: 22px 20px;
-        box-shadow: var(--shadow-soft);
-        backdrop-filter: blur(6px);
-        border: 1px solid #f4d7df;
-    }
-
-    .value-card h4 {
-        margin-bottom: 10px;
-        font-size: 18px;
-        color: #c2185b;
-    }
-
-    .value-card p { color: #555; line-height: 1.6; }
-
-    /* Timeline */
-    .timeline-wrapper {
-        position: relative;
-        padding: 6px 0 6px 22px;
-        max-width: 1100px;
-        margin: 0 auto;
-    }
-
-    .timeline-line {
-        position: absolute;
-        left: 12px;
-        top: 0;
-        bottom: 0;
-        width: 3px;
-        background: linear-gradient(180deg, #f9d7e3 0%, #f1b4d0 100%);
-        border-radius: 6px;
-    }
-
-    .timeline {
-        display: grid;
-        gap: 16px;
-    }
-
-    .timeline-card {
-        position: relative;
-        background: #fff;
-        border-radius: 14px;
-        padding: 16px 16px 14px 20px;
-        border: 1px solid #f4d7df;
-        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
-        transition: transform 0.15s ease, box-shadow 0.15s ease;
-    }
-
-    .timeline-card:hover {
-        transform: translateX(4px);
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
-    }
-
-    .timeline-dot {
-        position: absolute;
-        left: -14px;
-        top: 18px;
-        width: 16px;
-        height: 16px;
-        background: #fff;
-        border: 4px solid #c2185b;
-        border-radius: 50%;
-        box-shadow: 0 2px 10px rgba(0,0,0,0.15);
-    }
-
-    .timeline-year {
-        display: inline-block;
-        padding: 6px 12px;
-        border-radius: 999px;
-        background: #ffe6ef;
-        color: #c2185b;
-        font-weight: 700;
-        margin-bottom: 10px;
-        letter-spacing: 0.5px;
-    }
-
-    .timeline-title { font-weight: 700; margin-bottom: 6px; color: #222; }
-    .timeline-desc { color: #555; line-height: 1.6; }
-
-    @media (max-width: 640px) {
-        .timeline-wrapper { padding-left: 18px; }
-        .timeline-line { left: 8px; }
-        .timeline-card { padding-left: 18px; }
-        .timeline-dot { left: -10px; }
-    }
-
-    /* Gallery */
-    .gallery-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-        gap: 14px;
-    }
-
-    .gallery-grid img {
-        width: 100%;
-        height: 240px;
-        object-fit: cover;
-        border-radius: 14px;
-        box-shadow: 0 10px 28px rgba(0, 0, 0, 0.12);
-        transition: transform 0.25s ease, box-shadow 0.25s ease;
-    }
-
-    .gallery-grid img:hover { transform: translateY(-3px); box-shadow: 0 16px 38px rgba(0, 0, 0, 0.18); }
-
-    /* Team */
-    .team-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-        gap: 18px;
-    }
-
-    .team-card {
-        background: #fff;
-        border-radius: 16px;
-        overflow: hidden;
-        box-shadow: var(--shadow-soft);
-        border: 1px solid #f4d7df;
-        display: flex;
-        flex-direction: column;
-    }
-
-    .team-card img { width: 100%; height: 260px; object-fit: cover; }
-
-    .team-info { padding: 16px 18px 18px; }
-    .team-name { font-weight: 700; font-size: 18px; color: #222; }
-    .team-role { color: #c2185b; font-weight: 600; margin-top: 4px; }
-    .team-bio { color: #555; line-height: 1.6; margin-top: 8px; }
-
-    /* CTA */
-    .cta {
-        padding: 70px 5%;
-        background: linear-gradient(120deg, #f9d7e3 0%, #f4c3d8 50%, #f1b4d0 100%);
-        text-align: center;
-        color: #402b35;
-    }
-
-    .cta h3 { font-size: clamp(24px, 3vw, 32px); font-weight: 800; margin-bottom: 10px; }
-    .cta p { color: #4a3b44; margin-bottom: 18px; }
-
-    .cta .hero-cta { background: #fff; color: #c2185b; }
-
-    /* Responsive */
-    @media (max-width: 1024px) {
-        .story-grid { grid-template-columns: 1fr; }
-        .about-hero { min-height: 58vh; }
-    }
-
-    @media (max-width: 768px) {
-        .section { padding: 64px 5%; }
-        .hero-title { letter-spacing: 1px; }
-        .hero-kicker { letter-spacing: 3px; }
-    }
-
-    @media (max-width: 520px) {
-        .hero-cta { width: 100%; }
-        .gallery-grid img { height: 200px; }
-    }
+/* ─── RESPONSIVE ─── */
+@media (max-width: 1100px) {
+    .ab-metrics-inner { grid-template-columns: repeat(2,1fr); }
+    .ab-metric:nth-child(2) { border-right: none; }
+    .ab-metric:nth-child(3) { border-top: 1px solid rgba(255,255,255,0.07); }
+    .ab-values-grid { grid-template-columns: repeat(2,1fr); }
+    .ab-value-card:nth-child(even) { border-right: none; }
+    .ab-value-card:nth-child(n+3) { border-top: 1.5px solid #f7c8d9; }
+    .ab-timeline { grid-template-columns: 1fr; }
+    .ab-tl-item { border-right: none; border-bottom: 1px solid rgba(255,255,255,0.06); }
+    .ab-story-grid { grid-template-columns: 1fr; }
+    .ab-story-img img { min-height: 300px; }
+    .ab-story-text { padding: 48px 36px; }
+    .ab-gallery { grid-template-columns: 1fr 1fr; }
+    .ab-gallery-item:first-child { grid-row: auto; }
+    .ab-contact-inner { grid-template-columns: 1fr; gap: 48px; }
+}
+@media (max-width: 768px) {
+    .ab-hero { min-height: 70vh; }
+    .ab-hero h1 { font-size: 34px; }
+    .ab-metrics-inner { grid-template-columns: repeat(2,1fr); }
+    .ab-values-grid { grid-template-columns: 1fr; }
+    .ab-value-card { border-right: none; border-bottom: 1.5px solid #f7c8d9; }
+    .ab-team-grid { grid-template-columns: 1fr; }
+    .ab-team-card { border-right: none; border-bottom: 1.5px solid #f7c8d9; }
+    .ab-gallery { grid-template-columns: 1fr; }
+    .ab-form-row { grid-template-columns: 1fr; }
+}
 </style>
 
-<div class="about-wrapper">
-    <section class="about-hero">
-        <div class="hero-content">
-            <div class="hero-kicker">QHTN FASHION</div>
-            <h1 class="hero-title">Về Chúng Tôi</h1>
-            <p class="hero-subtitle">Từ một studio nhỏ với ước mơ đưa thời trang cao cấp đến gần hơn với mọi cô gái, QHTN đã trở thành điểm đến cho những trang phục thiết kế chính hãng, được tuyển chọn thủ công và phục vụ bằng sự tận tâm.</p>
-            <a class="hero-cta" href="set_quan_ao.php">Khám phá bộ sưu tập</a>
+<div class="ab-page">
+
+<!-- ===== HERO ===== -->
+<section class="ab-hero">
+    <div class="ab-hero-inner">
+        <div class="ab-hero-kicker"><span></span>Thương hiệu thời trang Việt</div>
+        <h1>Chúng tôi là<br><em>QHTN</em><br>Fashion &amp; Studio</h1>
+        <p class="ab-hero-desc">Từ một studio nhỏ với ước mơ đưa thời trang cao cấp đến gần hơn với mọi cô gái — QHTN đã trở thành điểm đến tin cậy cho những trang phục thiết kế được tuyển chọn thủ công.</p>
+        <div class="ab-hero-btns">
+            <a href="ao_dai.php" class="ab-btn-pink">Khám phá bộ sưu tập</a>
+            <a href="#story" class="ab-btn-ghost">Đọc câu chuyện</a>
         </div>
-    </section>
+    </div>
+    <div class="ab-hero-scroll">
+        <span>Scroll</span>
+        <div class="ab-hero-scroll-line"></div>
+    </div>
+</section>
 
-    <section class="section">
-        <div class="section-narrow">
-            <div class="section-header">
-                <div class="section-kicker">Our Story</div>
-                <h2 class="section-title">Hành trình tạo nên QHTN</h2>
-                <p class="section-desc">Chúng tôi bắt đầu từ niềm tin rằng mọi khoảnh khắc đặc biệt đều xứng đáng với những thiết kế tinh xảo. QHTN tuyển chọn trang phục từ các nhà mốt và nghệ nhân, đảm bảo tính nguyên bản, kiểm soát chất lượng và trải nghiệm phục vụ riêng biệt.</p>
-            </div>
-
-            <div class="story-grid">
-                <div class="story-text">
-                    <h3>Khởi nguồn & tầm nhìn</h3>
-                    <p>2016, một nhóm stylist và nhà thiết kế trẻ lập nên QHTN để lấp khoảng trống giữa thời trang haute couture và nhu cầu thuê linh hoạt. Chúng tôi muốn mọi khách hàng có thể khoác lên mình các tác phẩm thiết kế mà không bị rào cản sở hữu.</p>
-                    <p>Sứ mệnh của QHTN là “giúp bạn tỏa sáng đúng chất riêng”. Mỗi bộ trang phục được lựa chọn, bảo quản và chỉnh sửa thủ công, kèm tư vấn styling cá nhân hóa.</p>
-
-                    <h3>Cam kết & dịch vụ</h3>
-                    <p>100% chính hãng, quy trình bảo dưỡng chuẩn boutique, giao nhanh tại nội thành và hỗ trợ thử đồ theo lịch hẹn. Đội ngũ stylist giàu kinh nghiệm luôn đồng hành từ khâu chọn mẫu đến fitting.</p>
-                </div>
-
-                <div class="story-portrait">
-                    <img src="img/about-portrait.jpg" alt="Stylist QHTN đang chuẩn bị trang phục cho khách"> 
-                </div>
-            </div>
+<!-- ===== METRICS ===== -->
+<div class="ab-metrics">
+    <div class="ab-metrics-inner">
+        <div class="ab-metric">
+            <div class="ab-metric-num">10<span>K+</span></div>
+            <div class="ab-metric-label">Khách hài lòng</div>
+            <div class="ab-metric-sub">Từ dạ hội, lễ đính hôn đến showbiz</div>
         </div>
-    </section>
-
-    <section class="section" style="padding-top: 30px;">
-        <div class="section-narrow stats-grid">
-            <div class="stat-card">
-                <div class="stat-number">100%+</div>
-                <div class="stat-label">Đồ chính hãng</div>
-                <div style="color:#777; font-size:13px; margin-top:6px;">Kiểm định nguồn gốc, bảo dưỡng chuẩn boutique</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-number">5+ năm</div>
-                <div class="stat-label">Chuyên về mướn couture</div>
-                <div style="color:#777; font-size:13px; margin-top:6px;">Stylist dày dạn kinh nghiệm sự kiện</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-number">10,000+</div>
-                <div class="stat-label">Khách hài lòng</div>
-                <div style="color:#777; font-size:13px; margin-top:6px;">Từ dạ hội, lễ đính hôn đến showbiz</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-number">350+</div>
-                <div class="stat-label">Mẫu thiết kế</div>
-                <div style="color:#777; font-size:13px; margin-top:6px;">Đa dạng phom dáng & bảng màu</div>
-            </div>
+        <div class="ab-metric">
+            <div class="ab-metric-num">350<span>+</span></div>
+            <div class="ab-metric-label">Mẫu thiết kế</div>
+            <div class="ab-metric-sub">Đa dạng phom dáng & bảng màu</div>
         </div>
-    </section>
-
-    <section class="section">
-        <div class="section-narrow">
-            <div class="section-header">
-                <div class="section-kicker">Core Values</div>
-                <h2 class="section-title">Giá trị cốt lõi</h2>
-            </div>
-            <div class="value-grid">
-                <div class="value-card">
-                    <h4>Premium Quality</h4>
-                    <p>Chỉ nhận đồ thiết kế chính hãng, kiểm tra thủ công từng đường may, lưu kho chuẩn nhiệt-ẩm để giữ phom hoàn hảo.</p>
-                </div>
-                <div class="value-card">
-                    <h4>Diverse Collection</h4>
-                    <p>Bộ sưu tập trải rộng từ dạ hội, red-carpet, lễ cưới đến cocktail. Cập nhật theo mùa và khuynh hướng runway.</p>
-                </div>
-                <div class="value-card">
-                    <h4>Personal Styling</h4>
-                    <p>Tư vấn 1-1, gợi ý phụ kiện, thử đồ theo lịch hẹn, điều chỉnh vừa vặn trước khi giao.</p>
-                </div>
-                <div class="value-card">
-                    <h4>Care & Sustainability</h4>
-                    <p>Giặt hấp chuẩn boutique, tái sử dụng trang phục cao cấp để giảm lãng phí và kéo dài vòng đời thiết kế.</p>
-                </div>
-            </div>
+        <div class="ab-metric">
+            <div class="ab-metric-num">5<span>+ năm</span></div>
+            <div class="ab-metric-label">Kinh nghiệm</div>
+            <div class="ab-metric-sub">Stylist dày dạn sự kiện cao cấp</div>
         </div>
-    </section>
-
-    <section class="section" style="padding-top: 10px;">
-        <div class="section-narrow">
-            <div class="section-header" style="margin-bottom: 26px;">
-                <div class="section-kicker">Timeline</div>
-                <h2 class="section-title">Dấu mốc hình thành & phát triển</h2>
-            </div>
-
-            <div class="timeline-wrapper">
-                <div class="timeline-line"></div>
-                <div class="timeline">
-                    <div class="timeline-card">
-                        <span class="timeline-dot"></span>
-                        <div class="timeline-year">2016</div>
-                        <div class="timeline-title">Khởi lập QHTN Studio</div>
-                        <div class="timeline-desc">Nhóm stylist trẻ mở studio đầu tiên tại Hà Nội, tập trung dịch vụ thuê đầm dạ hội.</div>
-                    </div>
-                    <div class="timeline-card">
-                        <span class="timeline-dot"></span>
-                        <div class="timeline-year">2018</div>
-                        <div class="timeline-title">Mở rộng bộ sưu tập couture</div>
-                        <div class="timeline-desc">Hợp tác các nhà mốt trong nước, bổ sung dòng thiết kế red-carpet và bridal capsule.</div>
-                    </div>
-                    <div class="timeline-card">
-                        <span class="timeline-dot"></span>
-                        <div class="timeline-year">2020</div>
-                        <div class="timeline-title">Styling cá nhân hóa</div>
-                        <div class="timeline-desc">Ra mắt dịch vụ tư vấn 1-1, fitting theo lịch hẹn, giao nhận tận nơi trong ngày.</div>
-                    </div>
-                    <div class="timeline-card">
-                        <span class="timeline-dot"></span>
-                        <div class="timeline-year">2023</div>
-                        <div class="timeline-title">10,000+ khách hàng</div>
-                        <div class="timeline-desc">Đạt mốc 10k khách hài lòng, mở rộng kho lưu trữ và phòng thử tiêu chuẩn boutique.</div>
-                    </div>
-                    <div class="timeline-card">
-                        <span class="timeline-dot"></span>
-                        <div class="timeline-year">2025</div>
-                        <div class="timeline-title">Nâng cấp trải nghiệm omnichannel</div>
-                        <div class="timeline-desc">Đặt lịch, chọn mẫu và giữ size trực tuyến; quy trình bảo dưỡng nâng cấp với thiết bị mới.</div>
-                    </div>
-                </div>
-            </div>
+        <div class="ab-metric">
+            <div class="ab-metric-num">100<span>%</span></div>
+            <div class="ab-metric-label">Chính hãng</div>
+            <div class="ab-metric-sub">Kiểm định nguồn gốc, chuẩn boutique</div>
         </div>
-    </section>
-
-    <section class="section" style="padding-top: 10px;">
-        <div class="section-narrow">
-            <div class="section-header">
-                <div class="section-kicker">Gallery</div>
-                <h2 class="section-title">Khoảnh khắc tỏa sáng</h2>
-                <p class="section-desc">Một vài lookbook và hình ảnh runway truyền cảm hứng cho bộ sưu tập của QHTN.</p>
-            </div>
-
-            <div class="gallery-grid">
-                <img src="assets/pictures/about/4.jpg" alt="Lookbook váy dạ hội hồng ánh kim">
-                <img src="assets/pictures/about/5.jpg" alt="Chi tiết corset và chất liệu lấp lánh">
-                <img src="assets/pictures/about/6.jpg" alt="Đầm couture dài phối tay cape">
-                <img src="assets/pictures/about/7.jpg" alt="Runway phong cách black-tie">
-                <img src="assets/pictures/about/8.jpg" alt="Chi tiết eo thắt nơ trên vải satin">
-                <img src="assets/pictures/about/9.jpg" alt="Đầm ren đính đá tông pastel">
-            </div>
-        </div>
-    </section>
-
-    <section class="section" style="padding-top: 10px;">
-        <div class="section-narrow">
-            <div class="section-header">
-                <div class="section-kicker">Team</div>
-                <h2 class="section-title">Stylist & cố vấn</h2>
-                <p class="section-desc">Những người đứng sau từng lần fitting, bảo dưỡng và chọn mẫu cho bạn.</p>
-            </div>
-
-            <div class="team-grid">
-                <div class="team-card">
-                    <img src="assets/pictures/about/1.jpg" alt="Lead stylist QHTN">
-                    <div class="team-info">
-                        <div class="team-name">Lan Anh</div>
-                        <div class="team-role">Lead Stylist</div>
-                        <div class="team-bio">10 năm styling sự kiện, hiểu phom dáng và bảng màu tôn da, luôn tối ưu look cho từng dáng người.</div>
-                    </div>
-                </div>
-                <div class="team-card">
-                    <img src="assets/pictures/about/1 copy.jpg" alt="Head of Curation QHTN">
-                    <div class="team-info">
-                        <div class="team-name">Minh Châu</div>
-                        <div class="team-role">Head of Curation</div>
-                        <div class="team-bio">Chọn lọc thiết kế, làm việc cùng nhà mốt để có phiên bản giới hạn, giữ chất lượng và độ độc bản.</div>
-                    </div>
-                </div>
-                <div class="team-card">
-                    <img src="assets/pictures/about/3.jpg" alt="Tailoring specialist QHTN">
-                    <div class="team-info">
-                        <div class="team-name">Thùy Dương</div>
-                        <div class="team-role">Tailoring Specialist</div>
-                        <div class="team-bio">Phụ trách fitting, chỉnh sửa dáng và bảo dưỡng chất liệu, đảm bảo trang phục sẵn sàng ngay trước sự kiện.</div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <section class="cta">
-        <h3>Sẵn sàng tỏa sáng trong thiết kế chuẩn boutique?</h3>
-        <p>Đặt lịch thử đồ hoặc chọn ngay look yêu thích.</p>
-        <a class="hero-cta" href="set_quan_ao.php">Chọn trang phục ngay</a>
-    </section>
+    </div>
 </div>
+
+<!-- ===== STORY ===== -->
+<div class="ab-story-strip" id="story">
+    <div class="ab-story-grid">
+        <div class="ab-story-img">
+            <img src="img/avatars/hero.webp" alt="Đội ngũ QHTN">
+        </div>
+        <div class="ab-story-text">
+            <div class="ab-eyebrow">Our Story</div>
+            <h2 class="ab-heading">Hành trình<br>tạo nên QHTN</h2>
+            <blockquote class="ab-story-pull">
+                "Sứ mệnh của chúng tôi là giúp bạn tỏa sáng đúng chất riêng — mỗi thiết kế, một câu chuyện."
+            </blockquote>
+            <p>Năm 2016, một nhóm stylist và nhà thiết kế trẻ lập nên QHTN để lấp khoảng trống giữa thời trang haute couture và nhu cầu thuê linh hoạt. Chúng tôi muốn mọi khách hàng có thể khoác lên mình các tác phẩm thiết kế mà không bị rào cản sở hữu.</p>
+            <p>Mỗi bộ trang phục được lựa chọn, bảo quản và chỉnh sửa thủ công, kèm tư vấn styling cá nhân hóa. Quy trình bảo dưỡng chuẩn boutique, 100% chính hãng, giao nhanh nội thành và hỗ trợ thử đồ theo lịch hẹn.</p>
+        </div>
+    </div>
+</div>
+
+<!-- ===== CORE VALUES ===== -->
+<div class="ab-section">
+    <div class="ab-eyebrow">Core Values</div>
+    <h2 class="ab-heading">Giá trị cốt lõi</h2>
+    <p class="ab-subtext">Bốn trụ cột xây dựng nên mọi trải nghiệm tại QHTN — từ kho lưu trữ đến khoảnh khắc bạn bước ra sự kiện.</p>
+    <div class="ab-values-grid">
+        <div class="ab-value-card">
+            <div class="ab-value-icon"><i class="fa-solid fa-gem"></i></div>
+            <div class="ab-value-en">Premium Quality</div>
+            <div class="ab-value-title">Chất lượng tuyệt đối</div>
+            <p class="ab-value-desc">Chỉ nhận đồ thiết kế chính hãng, kiểm tra thủ công từng đường may, lưu kho chuẩn nhiệt-ẩm để giữ phom hoàn hảo suốt vòng đời sản phẩm.</p>
+        </div>
+        <div class="ab-value-card">
+            <div class="ab-value-icon"><i class="fa-solid fa-layer-group"></i></div>
+            <div class="ab-value-en">Diverse Collection</div>
+            <div class="ab-value-title">Bộ sưu tập đa dạng</div>
+            <p class="ab-value-desc">Trải rộng từ dạ hội, red-carpet, lễ cưới đến cocktail. Cập nhật liên tục theo mùa và khuynh hướng runway quốc tế.</p>
+        </div>
+        <div class="ab-value-card">
+            <div class="ab-value-icon"><i class="fa-solid fa-user-tie"></i></div>
+            <div class="ab-value-en">Personal Styling</div>
+            <div class="ab-value-title">Styling cá nhân hóa</div>
+            <p class="ab-value-desc">Tư vấn 1-1, gợi ý phụ kiện phù hợp, thử đồ theo lịch hẹn, điều chỉnh vừa vặn trước khi giao — đảm bảo bạn hoàn hảo mọi góc nhìn.</p>
+        </div>
+        <div class="ab-value-card">
+            <div class="ab-value-icon"><i class="fa-solid fa-leaf"></i></div>
+            <div class="ab-value-en">Care & Sustainability</div>
+            <div class="ab-value-title">Bền vững &amp; trân trọng</div>
+            <p class="ab-value-desc">Giặt hấp chuẩn boutique, tái sử dụng trang phục cao cấp để giảm lãng phí thời trang và kéo dài vòng đời từng thiết kế.</p>
+        </div>
+    </div>
+</div>
+
+<!-- ===== TIMELINE ===== -->
+<div class="ab-timeline-bg">
+    <div class="ab-timeline-inner">
+        <div class="ab-eyebrow" style="color:#f48fb1;">
+            <span style="background:#f48fb1"></span>Milestones
+        </div>
+        <h2 class="ab-heading" style="color:#fff;">Dấu mốc<br>hình thành &amp; phát triển</h2>
+        <div class="ab-timeline">
+            <div class="ab-tl-item">
+                <div class="ab-tl-dot"></div>
+                <div class="ab-tl-year">2016</div>
+                <div class="ab-tl-title">Khởi lập QHTN Studio</div>
+                <p class="ab-tl-desc">Nhóm stylist trẻ mở studio đầu tiên tại Hà Nội, tập trung dịch vụ thuê đầm dạ hội và trang phục sự kiện.</p>
+            </div>
+            <div class="ab-tl-item">
+                <div class="ab-tl-dot"></div>
+                <div class="ab-tl-year">2018</div>
+                <div class="ab-tl-title">Mở rộng bộ sưu tập Couture</div>
+                <p class="ab-tl-desc">Hợp tác các nhà mốt trong nước, bổ sung dòng thiết kế red-carpet và bridal capsule cao cấp.</p>
+            </div>
+            <div class="ab-tl-item">
+                <div class="ab-tl-dot"></div>
+                <div class="ab-tl-year">2020</div>
+                <div class="ab-tl-title">Styling cá nhân hóa</div>
+                <p class="ab-tl-desc">Ra mắt dịch vụ tư vấn 1-1, fitting theo lịch hẹn, giao nhận tận nơi trong ngày tại nội thành.</p>
+            </div>
+            <div class="ab-tl-item">
+                <div class="ab-tl-dot"></div>
+                <div class="ab-tl-year">2023</div>
+                <div class="ab-tl-title">10,000+ khách hàng</div>
+                <p class="ab-tl-desc">Đạt mốc 10k khách hài lòng, mở rộng kho lưu trữ và phòng thử tiêu chuẩn boutique chuyên nghiệp.</p>
+            </div>
+            <div class="ab-tl-item">
+                <div class="ab-tl-dot"></div>
+                <div class="ab-tl-year">2025<span> →</span></div>
+                <div class="ab-tl-title">Nền tảng Omnichannel</div>
+                <p class="ab-tl-desc">Đặt lịch, chọn mẫu, giữ size trực tuyến. Quy trình bảo dưỡng nâng cấp với thiết bị boutique thế hệ mới.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ===== GALLERY ===== -->
+<div class="ab-section">
+    <div class="ab-eyebrow">Gallery</div>
+    <h2 class="ab-heading">Khoảnh khắc<br>tỏa sáng</h2>
+    <div class="ab-gallery">
+        <div class="ab-gallery-item">
+            <img src="assets/pictures/about/4.jpg" alt="Lookbook váy dạ hội hồng ánh kim">
+            <div class="ab-gallery-caption">Bridal Collection</div>
+        </div>
+        <div class="ab-gallery-item">
+            <img src="assets/pictures/about/5.jpg" alt="Chi tiết corset lấp lánh">
+            <div class="ab-gallery-caption">Corset Detail</div>
+        </div>
+        <div class="ab-gallery-item">
+            <img src="assets/pictures/about/6.jpg" alt="Đầm couture dài phối cape">
+            <div class="ab-gallery-caption">Couture Cape</div>
+        </div>
+        <div class="ab-gallery-item">
+            <img src="assets/pictures/about/7.jpg" alt="Runway phong cách black-tie">
+            <div class="ab-gallery-caption">Black-Tie Runway</div>
+        </div>
+        <div class="ab-gallery-item">
+            <img src="assets/pictures/about/8.jpg" alt="Chi tiết eo thắt nơ satin">
+            <div class="ab-gallery-caption">Satin Bow Detail</div>
+        </div>
+        <div class="ab-gallery-item">
+            <img src="assets/pictures/about/9.jpg" alt="Đầm ren đính đá pastel">
+            <div class="ab-gallery-caption">Lace & Crystal</div>
+        </div>
+    </div>
+</div>
+
+<!-- ===== TEAM ===== -->
+<div class="ab-story-strip">
+    <div class="ab-section-sm">
+        <div class="ab-eyebrow">Our Team</div>
+        <h2 class="ab-heading">Đội ngũ chuyên gia<br>phía sau QHTN</h2>
+        <p class="ab-subtext">Những người đứng sau từng lần fitting, bảo dưỡng và tuyển chọn mẫu — để mỗi khách hàng có trải nghiệm hoàn hảo nhất.</p>
+        <div class="ab-team-grid">
+            <div class="ab-team-card">
+                <div class="ab-team-img-wrap">
+                    <img src="assets/pictures/about/1.jpg" alt="Lead Stylist QHTN">
+                </div>
+                <div class="ab-team-info">
+                    <div class="ab-team-role">Lead Stylist</div>
+                    <div class="ab-team-name">Lan Anh</div>
+                    <p class="ab-team-bio">10 năm styling sự kiện, thấu hiểu phom dáng và bảng màu tôn da, luôn tối ưu look cho từng dáng người một cách chính xác và tinh tế nhất.</p>
+                    <div class="ab-team-tag"><i class="fa-solid fa-star" style="color:var(--accent-pink);font-size:10px"></i> 10+ năm kinh nghiệm</div>
+                </div>
+            </div>
+            <div class="ab-team-card">
+                <div class="ab-team-img-wrap">
+                    <img src="assets/pictures/about/1 copy.jpg" alt="Head of Curation QHTN">
+                </div>
+                <div class="ab-team-info">
+                    <div class="ab-team-role">Head of Curation</div>
+                    <div class="ab-team-name">Minh Châu</div>
+                    <p class="ab-team-bio">Chọn lọc thiết kế, làm việc cùng nhà mốt để có phiên bản giới hạn, giữ chất lượng và tính độc bản của từng bộ sưu tập trong kho QHTN.</p>
+                    <div class="ab-team-tag"><i class="fa-solid fa-gem" style="color:var(--accent-pink);font-size:10px"></i> Buyer chuyên nghiệp</div>
+                </div>
+            </div>
+            <div class="ab-team-card">
+                <div class="ab-team-img-wrap">
+                    <img src="assets/pictures/about/3.jpg" alt="Tailoring Specialist QHTN">
+                </div>
+                <div class="ab-team-info">
+                    <div class="ab-team-role">Tailoring Specialist</div>
+                    <div class="ab-team-name">Thùy Dương</div>
+                    <p class="ab-team-bio">Phụ trách fitting, chỉnh sửa dáng và bảo dưỡng chất liệu, đảm bảo trang phục sẵn sàng trước sự kiện trong tình trạng hoàn hảo nhất.</p>
+                    <div class="ab-team-tag"><i class="fa-solid fa-scissors" style="color:var(--accent-pink);font-size:10px"></i> Chuyên gia chỉnh sửa</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ===== CONTACT ===== -->
+<div class="ab-contact-bg" id="lien-he">
+    <div class="ab-contact-inner">
+        <div class="ab-contact-info">
+            <div class="ab-eyebrow">Liên hệ</div>
+            <h2 class="ab-heading">Gặp gỡ<br>&amp; tư vấn</h2>
+            <p class="ab-subtext" style="margin-bottom:0">Đến trực tiếp showroom, gọi điện hoặc để lại tin nhắn — đội ngũ QHTN phản hồi trong vòng 24 giờ làm việc.</p>
+            <div class="ab-contact-rows">
+                <div class="ab-contact-row">
+                    <div class="ab-contact-icon"><i class="fa-solid fa-location-dot"></i></div>
+                    <div>
+                        <div class="ab-contact-label">Showroom</div>
+                        <div class="ab-contact-val">123 Đường Thời Trang, Quận 1<br><small>TP. Hồ Chí Minh — Mở cửa 8h–20h hàng ngày</small></div>
+                    </div>
+                </div>
+                <div class="ab-contact-row">
+                    <div class="ab-contact-icon"><i class="fa-solid fa-phone"></i></div>
+                    <div>
+                        <div class="ab-contact-label">Hotline</div>
+                        <div class="ab-contact-val">0xxx-xxx-xxx<br><small>Thứ 2 → Chủ nhật · 8:00 – 21:00</small></div>
+                    </div>
+                </div>
+                <div class="ab-contact-row">
+                    <div class="ab-contact-icon"><i class="fa-solid fa-envelope"></i></div>
+                    <div>
+                        <div class="ab-contact-label">Email</div>
+                        <div class="ab-contact-val">qhtn.fashion@gmail.com<br><small>Phản hồi trong vòng 24 giờ làm việc</small></div>
+                    </div>
+                </div>
+                <div class="ab-contact-row">
+                    <div class="ab-contact-icon"><i class="fa-brands fa-facebook"></i></div>
+                    <div>
+                        <div class="ab-contact-label">Mạng xã hội</div>
+                        <div class="ab-contact-val">QHTN Fashion Studio<br><small>Facebook · Instagram · TikTok</small></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="ab-contact-form">
+            <div class="ab-eyebrow">Gửi tin nhắn</div>
+            <h3 class="ab-heading" style="font-size:24px;margin-bottom:28px;">Để lại<br>thông tin</h3>
+            <form method="POST" action="ve_chung_toi.php#lien-he" onsubmit="return handleContactForm(event)">
+                <div class="ab-form-row">
+                    <div>
+                        <label class="ab-form-label">Họ và Tên *</label>
+                        <input class="ab-form-input" type="text" name="name" placeholder="Nguyễn Thị A" required>
+                    </div>
+                    <div>
+                        <label class="ab-form-label">Số điện thoại</label>
+                        <input class="ab-form-input" type="tel" name="phone" placeholder="0912 345 678">
+                    </div>
+                </div>
+                <label class="ab-form-label">Email *</label>
+                <input class="ab-form-input" type="email" name="email" placeholder="email@example.com" required>
+                <label class="ab-form-label">Nội dung / Yêu cầu *</label>
+                <textarea class="ab-form-textarea" name="message" placeholder="Tôi muốn tư vấn về trang phục dự tiệc, thuê đầm dạ hội..." required></textarea>
+                <button type="submit" class="ab-form-submit">
+                    <i class="fa-solid fa-paper-plane"></i>&ensp;Gửi yêu cầu tư vấn
+                </button>
+                <p class="ab-form-note">Thông tin của bạn được bảo mật tuyệt đối. Chúng tôi không spam.</p>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- ===== CTA BOTTOM ===== -->
+<section class="ab-cta">
+    <h2>Sẵn sàng tỏa sáng<br>trong thiết kế chuẩn boutique?</h2>
+    <p>Đặt lịch thử đồ hoặc chọn ngay look yêu thích cho dịp đặc biệt của bạn.</p>
+    <div class="ab-cta-btns">
+        <a href="ao_dai.php" class="ab-btn-white">
+            <i class="fa-solid fa-shirt"></i>&ensp;Xem bộ sưu tập
+        </a>
+        <a href="membership.php" class="ab-btn-border">
+            <i class="fa-solid fa-crown"></i>&ensp;Tham gia thành viên
+        </a>
+    </div>
+</section>
+
+</div><!-- .ab-page -->
+
+<script>
+function handleContactForm(e) {
+    e.preventDefault();
+    const btn = e.target.querySelector('.ab-form-submit');
+    btn.textContent = 'Đã gửi! Chúng tôi sẽ liên hệ sớm.';
+    btn.style.background = '#2f1c26';
+    btn.disabled = true;
+    setTimeout(() => {
+        btn.innerHTML = '<i class="fa-solid fa-paper-plane"></i>&ensp;Gửi yêu cầu tư vấn';
+        btn.style.background = '';
+        btn.disabled = false;
+        e.target.reset();
+    }, 4000);
+    return false;
+}
+</script>
 
 <?php include 'footer.php'; ?>

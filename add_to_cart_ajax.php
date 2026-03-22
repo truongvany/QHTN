@@ -18,21 +18,23 @@ if (!isset($_SESSION['user_id']) && !isset($_SESSION['username'])) {
     exit;
 }
 
-function bookedQuantityForVariant(PDO $conn, int $variantId, string $startDate, string $endDate): int {
+if (!function_exists('bookedQuantityForVariant')) {
+    function bookedQuantityForVariant(PDO $conn, int $variantId, string $startDate, string $endDate): int {
         $sql = "SELECT COALESCE(SUM(od.quantity),0) AS qty FROM order_details od
                         JOIN orders o ON od.order_id = o.id
                         WHERE od.variant_id = ?
                             AND od.rental_start IS NOT NULL AND od.rental_end IS NOT NULL
                             AND o.status NOT IN ('cancelled','returned')
                             AND NOT (od.rental_end < ? OR od.rental_start > ?)
-                        "
-                        ;
+                        ";
         $stmt = $conn->prepare($sql);
         $stmt->execute([$variantId, $startDate, $endDate]);
         return (int)$stmt->fetchColumn();
+    }
 }
 
-function hasProductConflictNoVariant(PDO $conn, int $productId, string $startDate, string $endDate): bool {
+if (!function_exists('hasProductConflictNoVariant')) {
+    function hasProductConflictNoVariant(PDO $conn, int $productId, string $startDate, string $endDate): bool {
         $sql = "SELECT 1 FROM order_details od
                         JOIN orders o ON od.order_id = o.id
                         WHERE od.product_id = ?
@@ -44,6 +46,7 @@ function hasProductConflictNoVariant(PDO $conn, int $productId, string $startDat
         $stmt = $conn->prepare($sql);
         $stmt->execute([$productId, $startDate, $endDate]);
         return (bool)$stmt->fetchColumn();
+    }
 }
 
 // ====================================================

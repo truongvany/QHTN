@@ -21,7 +21,81 @@ $redirect_map = [
 // (Logic này tùy chọn, bạn có thể xóa nếu thấy phiền)
 
 // 3. TÌM KIẾM TRONG DATABASE
-        <div class="search-header">
+$results = [];
+if ($keyword !== '') {
+    // Search in name and description
+    $stmt = $pdo->prepare("SELECT * FROM products WHERE name LIKE :keyword OR description LIKE :keyword ORDER BY id DESC");
+    $stmt->execute(['keyword' => "%$keyword%"]);
+    $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
+
+include 'header.php';
+?>
+
+<div class="container" style="max-width: 1400px; margin: 40px auto; padding: 0 5%;">
+    <style>
+        .search-header {
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        .highlight-kw {
+            color: var(--accent-pink, #e95a8a);
+        }
+        .product-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 30px;
+        }
+        .product-card {
+            background: #fff;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            transition: transform 0.3s;
+        }
+        .product-card:hover {
+            transform: translateY(-5px);
+        }
+        .product-img-wrapper {
+            aspect-ratio: 3/4;
+            overflow: hidden;
+        }
+        .product-img-wrapper img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .product-info {
+            padding: 20px;
+        }
+        .product-name {
+            font-size: 16px;
+            margin-bottom: 10px;
+            min-height: 48px;
+        }
+        .product-price {
+            color: var(--accent-pink, #e95a8a);
+            font-weight: bold;
+            font-size: 18px;
+            margin-bottom: 15px;
+        }
+        .btn-pill {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 10px 20px;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 600;
+            width: 100%;
+        }
+        .btn-pill.primary {
+            background: var(--accent-pink, #e95a8a);
+            color: white;
+        }
+    </style>
+
+    <div class="search-header">
             <h2>Kết quả cho: <span class="highlight-kw">"<?php echo htmlspecialchars($keyword); ?>"</span></h2>
             <p>Tìm thấy <b><?php echo count($results); ?></b> sản phẩm phù hợp.</p>
         </div>
@@ -51,5 +125,11 @@ $redirect_map = [
                         <a class="btn-pill primary" href="product_detail.php?id=<?php echo $row['id']; ?>">
                             <i class="fa-solid fa-eye"></i> Xem chi tiết
                         </a>
-
                     </div>
+                </div>
+            </div>
+            <?php endforeach; ?>
+        </div>
+</div>
+
+<?php include 'footer.php'; ?>

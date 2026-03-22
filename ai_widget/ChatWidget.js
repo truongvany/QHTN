@@ -37,8 +37,8 @@ class AIChartWidget {
         const widgetHTML = `
             <!-- Floating Button -->
             <div class="ai-widget-trigger">
-                <button class="ai-widget-button" id="aiWidgetTrigger" title="Hỏi tôi gì">
-                    💬
+                <button class="ai-widget-button" id="aiWidgetTrigger" title="Trợ giúp">
+                    <img src="img/chatbot/customer-service.png" alt="Chat" />
                 </button>
             </div>
 
@@ -48,12 +48,12 @@ class AIChartWidget {
                     <!-- Header -->
                     <div class="ai-chat-header">
                         <div class="ai-chat-header-info">
-                            <div class="ai-chat-avatar">✨</div>
+                            <img src="img/chatbot/customer-service.png" class="ai-chat-avatar" alt="Atelier">
                             <div class="ai-chat-title">
-                                <div class="ai-chat-name">Atelier Concierge</div>
+                                <div class="ai-chat-name">Atelier</div>
                                 <div class="ai-chat-status">
                                     <span class="ai-status-dot"></span>
-                                    Active now
+                                    Online
                                 </div>
                             </div>
                         </div>
@@ -61,7 +61,7 @@ class AIChartWidget {
                             <button class="ai-chat-btn" id="aiClearBtn" title="Xóa lịch sử">
                                 🗑️
                             </button>
-                            <button class="ai-chat-btn" id="aiMaximizeBtn" title="Phóng to" style="display: none;">
+                            <button class="ai-chat-btn" id="aiMaximizeBtn" title="Phóng to">
                                 ⛶
                             </button>
                             <button class="ai-chat-btn ai-chat-btn-close" id="aiCloseBtn" title="Đóng">
@@ -88,8 +88,6 @@ class AIChartWidget {
                             <button class="ai-send-btn" id="aiSendBtn" title="Gửi">
                                 ✈️
                             </button>
-                        </div>
-                        <div class="ai-footer-text">Powered by AI</div>
                     </div>
                 </div>
             </div>
@@ -196,17 +194,14 @@ class AIChartWidget {
         }
     }
 
-    /**
-     * Toggle maximize
-     */
     toggleMaximize() {
         this.isExpanded = !this.isExpanded;
-        const chatWindow = document.getElementById('aiChatWindow');
-        if (chatWindow) {
+        const container = document.getElementById('aiWidgetContainer');
+        if (container) {
             if (this.isExpanded) {
-                chatWindow.classList.add('ai-maximized');
+                container.classList.add('ai-maximized');
             } else {
-                chatWindow.classList.remove('ai-maximized');
+                container.classList.remove('ai-maximized');
             }
         }
     }
@@ -231,7 +226,7 @@ class AIChartWidget {
             const welcomeMsg = {
                 id: `msg-${Date.now()}`,
                 sender: 'ai',
-                text: '🎀 **Chào mừng đến QHTN Fashion Rental!**\n\nMình là trợ lý ảo của bạn, sẵn sàng giúp bạn:\n✨ Tìm áo dài & sản phẩm\n💰 Tư vấn giá cả\n📏 Hướng dẫn chọn size\n📦 Kiểm tra đơn hàng\n\nBạn muốn tìm sản phẩm nào? 👇',
+                text: 'Xin chào, chúc Quý khách một ngày tốt lành! ❤ Đây là Atelier, trợ lý ảo của QHTN Fashion Rental. Quý khách muốn Atelier hỗ trợ về vấn đề gì ạ?',
                 timestamp: new Date().toISOString()
             };
             this.messages.push(welcomeMsg);
@@ -347,7 +342,7 @@ class AIChartWidget {
             const typingEl = document.createElement('div');
             typingEl.className = 'ai-message-wrapper ai';
             typingEl.innerHTML = `
-                <div class="ai-message-avatar">✨</div>
+                <img src="img/chatbot/customer-service.png" class="ai-message-avatar" alt="AI">
                 <div class="ai-typing-indicator">
                     <span class="ai-typing-dot"></span>
                     <span class="ai-typing-dot"></span>
@@ -375,7 +370,7 @@ class AIChartWidget {
         
         if (msg.sender === 'ai') {
             html = `
-                <div class="ai-message-avatar">✨</div>
+                <img src="img/chatbot/customer-service.png" class="ai-message-avatar" alt="AI">
                 <div class="ai-message-content ai ${msg.isError ? 'error' : ''}">
                     <div class="ai-message ai ${msg.isError ? 'error' : ''}">
                         ${this.escapeHtml(msg.text)}
@@ -424,20 +419,17 @@ class AIChartWidget {
                 html += `</div>`;
             }
 
-            // Phase 5: Add feedback buttons
-            html += `
-                <div class="ai-message-feedback" data-message-id="${msg.id}">
-                    <button class="ai-feedback-btn" onclick="window.aiChatWidget.submitFeedback('${msg.id}', 1)" title="Hữu ích">👍</button>
-                    <button class="ai-feedback-btn" onclick="window.aiChatWidget.submitFeedback('${msg.id}', -1)" title="Không hữu ích">👎</button>
-                </div>
-            `;
-
+            // Feedback buttons removed per new clean design
+            
             html += `</div>`;
         } else {
             html = `
-                <div class="ai-message user">
-                    ${this.escapeHtml(msg.text)}
+                <div class="ai-message-content user">
+                    <div class="ai-message user">
+                        ${this.escapeHtml(msg.text)}
+                    </div>
                 </div>
+                <img src="img/chatbot/user.png" class="ai-message-avatar" alt="User">
             `;
         }
 

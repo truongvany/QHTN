@@ -510,7 +510,7 @@ $isHome = isset($is_homepage) && $is_homepage === true;
             <li><a href="chinh_sach.php" class="menu-link">Chính Sách</a></li>
             <li><a href="membership.php" class="menu-link">Menmbership</a></li>
             <li>
-    <a href="javascript:void(0)" class="menu-link btn-livestream" id="open-livestream">
+    <a href="livestream.php" class="menu-link btn-livestream" id="open-livestream">
         <span class="live-dot"></span> Live stream
     </a>
 </li>
@@ -535,32 +535,15 @@ $(document).ready(function() {
 });
 </script>
 
-<div id="livestream-modal" class="modal-overlay">
-    <div class="modal-content-video">
-        <span class="close-modal-video">&times;</span>
-        
-        <div class="video-wrapper">
-            <iframe width="100%" height="400" 
-                    src="https://www.youtube.com/embed/live_stream_id?autoplay=1" 
-                    title="Live Stream" frameborder="0" 
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-                    allowfullscreen>
-            </iframe>
-            
-            </div>
-    </div>
-</div>
-
 <style>
-    /* 1. Nút Live Stream trên Menu */
+    /* Nút Live Stream trên Menu */
     .btn-livestream {
-        display: flex; 
-        align-items: center; 
+        display: flex;
+        align-items: center;
         gap: 8px;
-        color: var(--accent-pink) !important; /* Chữ màu hồng đỏ */
+        color: var(--accent-pink) !important;
         font-weight: 700 !important;
     }
-
     /* Dấu chấm đỏ nhấp nháy */
     .live-dot {
         width: 8px; height: 8px;
@@ -570,78 +553,9 @@ $(document).ready(function() {
         box-shadow: 0 0 0 0 rgba(255, 0, 0, 0.7);
         animation: pulse-red 1.5s infinite;
     }
-
     @keyframes pulse-red {
-        0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(255, 0, 0, 0.7); }
-        70% { transform: scale(1); box-shadow: 0 0 0 6px rgba(255, 0, 0, 0); }
+        0%   { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(255, 0, 0, 0.7); }
+        70%  { transform: scale(1);    box-shadow: 0 0 0 6px rgba(255, 0, 0, 0); }
         100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(255, 0, 0, 0); }
     }
-
-    /* 2. Modal Popup (Nền tối) */
-    .modal-overlay {
-        position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-        background: rgba(0, 0, 0, 0.85); /* Nền đen mờ */
-        z-index: 99999;
-        display: none; /* Mặc định ẩn */
-        justify-content: center; align-items: center;
-        opacity: 0; transition: opacity 0.3s ease;
-    }
-    .modal-overlay.show { display: flex; opacity: 1; }
-
-    /* Nội dung Popup */
-    .modal-content-video {
-        position: relative;
-        width: 90%; max-width: 800px;
-        background: #000;
-        border-radius: 8px;
-        overflow: hidden;
-        box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-        transform: scale(0.8); transition: transform 0.3s ease;
-    }
-    .modal-overlay.show .modal-content-video { transform: scale(1); }
-
-    /* Nút đóng X */
-    .close-modal-video {
-        position: absolute; top: -10px; right: 10px;
-        font-size: 40px; color: #fff; cursor: pointer; z-index: 10;
-        transition: 0.2s;
-    }
-    .close-modal-video:hover { color: var(--accent-pink); }
-
-    /* Khung Video Responsive */
-    .video-wrapper {
-        position: relative; padding-bottom: 56.25%; /* Tỷ lệ 16:9 */
-        height: 0; overflow: hidden;
-        background: #000;
-    }
-    .video-wrapper iframe {
-        position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-    }
 </style>
-
-<script>
-$(document).ready(function() {
-    // 1. Mở Popup khi click vào nút Live stream
-    $('#open-livestream').click(function(e) {
-        e.preventDefault();
-        $('#livestream-modal').addClass('show');
-    });
-
-    // 2. Đóng Popup khi click nút X
-    $('.close-modal-video').click(function() {
-        $('#livestream-modal').removeClass('show');
-        // Dừng video khi đóng (bằng cách reset src)
-        var $iframe = $('#livestream-modal iframe');
-        var src = $iframe.attr('src');
-        $iframe.attr('src', '');
-        $iframe.attr('src', src);
-    });
-
-    // 3. Đóng Popup khi click ra vùng đen bên ngoài
-    $('#livestream-modal').click(function(e) {
-        if ($(e.target).is('#livestream-modal')) {
-            $('.close-modal-video').click();
-        }
-    });
-});
-</script>

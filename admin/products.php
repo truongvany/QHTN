@@ -98,7 +98,7 @@ admin_header('Sản phẩm', 'products');
                     <td><?php echo htmlspecialchars($product['category_name']); ?></td>
                     <td><?php echo number_format($product['price'], 0, ',', '.'); ?> đ</td>
                     <td><?php echo $product['deposit'] !== null ? number_format($product['deposit'], 0, ',', '.') . ' đ' : '—'; ?></td>
-                    <td><img class="img-thumb" src="../img/<?php echo htmlspecialchars($product['image'] ?: 'default.jpg'); ?>" alt=""></td>
+                    <td><img class="img-thumb" src="../img/<?php echo htmlspecialchars(basename($product['image'] ?: 'default.jpg')); ?>" alt=""></td>
                     <td class="actions">
                         <a class="btn ghost" href="#" onclick='editProduct(<?php echo json_encode($product); ?>); return false;'><i class="fa-solid fa-pen"></i></a>
                         <a class="btn ghost" style="border-color: rgba(248,113,113,0.5); color: #fecdd3;" href="?delete_product=<?php echo $product['id']; ?>" onclick="return confirm('Xóa sản phẩm này?')"><i class="fa-solid fa-trash"></i></a>
