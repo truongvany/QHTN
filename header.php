@@ -44,10 +44,10 @@ $isHome = isset($is_homepage) && $is_homepage === true;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 6px 5%;
+            padding: 10px 5%;
             max-width: 1400px;
             margin: 0 auto;
-            min-height: 48px;
+            min-height: 85px;
         }
 
         /* Logo */
@@ -57,16 +57,25 @@ $isHome = isset($is_homepage) && $is_homepage === true;
             flex-shrink: 0;
         }
 
+        .logo a {
+            display: flex;
+            align-items: center;
+            text-decoration: none;
+        }
+
         .logo img {
-            width: 40px;
-            height: 40px;
+            width: 140px;
+            height: auto;
+            max-height: 90px;
             object-fit: contain;
             display: block;
-            transition: transform 0.3s ease;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            filter: drop-shadow(0 4px 6px rgba(233, 90, 138, 0.2));
         }
 
         .logo a:hover img {
-            transform: scale(1.05);
+            transform: scale(1.08) translateY(-2px);
+            filter: drop-shadow(0 8px 15px rgba(233, 90, 138, 0.35));
         }
 
         /* Search Container */
@@ -343,8 +352,8 @@ $isHome = isset($is_homepage) && $is_homepage === true;
         /* Responsive */
         @media (max-width: 1024px) {
             header {
-                padding: 6px 3%;
-                min-height: 46px;
+                padding: 10px 3%;
+                min-height: 75px;
             }
 
             .search-container {
@@ -373,14 +382,14 @@ $isHome = isset($is_homepage) && $is_homepage === true;
         @media (max-width: 768px) {
             header {
                 flex-wrap: wrap;
-                padding: 6px 3%;
+                padding: 10px 3%;
                 min-height: auto;
-                gap: 6px;
+                gap: 10px;
             }
 
             .logo img {
-                width: 36px;
-                height: 36px;
+                width: 110px;
+                max-height: 70px;
             }
 
             .search-container {
@@ -443,10 +452,9 @@ $isHome = isset($is_homepage) && $is_homepage === true;
 
 <div class="sticky-wrapper <?= $isHome ? 'home-mode' : '' ?>">
     <header>
-        <div class="logo" style="display:flex; align-items:center;">
-            <a href="index.php" style="display:flex; align-items:center; gap:16px;">
-                <img src="assets/logo.png" alt="QHTN" style="width: 96px; height: 96px; object-fit:contain; display:block;" />
-    
+        <div class="logo">
+            <a href="index.php" title="Trang chủ QHTN">
+                <img src="assets/logo.png" alt="QHTN Logo" />
             </a>
         </div>
         
