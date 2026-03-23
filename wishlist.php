@@ -88,13 +88,13 @@ $stmtCats = $conn->prepare("SELECT c.id, c.name, COUNT(*) AS cnt
 $stmtCats->execute([$userId]);
 $wishlistCats = $stmtCats->fetchAll(PDO::FETCH_ASSOC);
 
-$pageTitle = 'Sản Phẩm Yêu Thích | QHTN';
+$pageTitle = 'Sản Phẩm Yêu Thích | MinQuin';
 include 'header.php';
 ?>
 
 <style>
 /* ============================================================
-   WISHLIST PAGE — QHTN CORPORATE EDITION
+   WISHLIST PAGE — MinQuin CORPORATE EDITION
    Đồng bộ với orders.php · No border-radius · Pink-Burgundy
 ============================================================ */
 .wl-page { background: #f8f5f6; min-height: 80vh; font-family: 'Montserrat', sans-serif; }

@@ -1,6 +1,6 @@
 <?php
 require_once 'config.php';
-$pageTitle = "Thành Viên & Quyền Lợi | QHTN";
+$pageTitle = "Thành Viên & Quyền Lợi | MinQuin";
 $user = null;
 $userTier = null;
 if (isset($_SESSION['user_id'])) {
@@ -27,7 +27,7 @@ include 'header.php';
 
 <style>
 /* ============================================================
-   MEMBERSHIP PAGE — QHTN CORPORATE PINK EDITION
+   MEMBERSHIP PAGE — MinQuin CORPORATE PINK EDITION
    No border-radius, enterprise feel, ultra-clean layout
 ============================================================ */
 
@@ -663,7 +663,7 @@ include 'header.php';
             <div class="mem-hero-eyebrow">
                 <span></span>Chương trình khách hàng thân thiết
             </div>
-            <h1>Thành viên<br><em>QHTN</em> Club</h1>
+            <h1>Thành viên<br><em>MinQuin</em> Club</h1>
             <p>Tích lũy chi tiêu, nâng hạng thành viên và nhận hàng loạt đặc quyền độc quyền — từ giảm giá trực tiếp đến dịch vụ ưu tiên cao cấp.</p>
             <?php if (!isset($_SESSION['user_id'])): ?>
                 <a href="register.php" class="mem-hero-cta">
@@ -853,7 +853,7 @@ include 'header.php';
                 <div class="mem-step">
                     <div class="mem-step-num">01</div>
                     <div class="mem-step-title">Đăng ký tài khoản</div>
-                    <p class="mem-step-desc">Tạo tài khoản miễn phí tại QHTN. Bạn ngay lập tức trở thành thành viên Bạc và bắt đầu tích điểm.</p>
+                    <p class="mem-step-desc">Tạo tài khoản miễn phí tại MinQuin. Bạn ngay lập tức trở thành thành viên Bạc và bắt đầu tích điểm.</p>
                 </div>
                 <div class="mem-step">
                     <div class="mem-step-num">02</div>

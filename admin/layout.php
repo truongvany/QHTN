@@ -18,7 +18,7 @@ function admin_header(string $pageTitle = 'Admin', string $active = ''): void {
     </head>
     <body>
     <div class="topbar">
-        <div class="brand">QHTN Admin</div>
+        <div class="brand">MinQuin Admin</div>
         <div class="top-actions">
             <a class="pill" href="../index.php" target="_blank"><i class="fa-solid fa-globe"></i> Xem trang</a>
             <a class="pill" href="../logout.php"><i class="fa-solid fa-arrow-right-from-bracket"></i> Đăng xuất</a>
@@ -31,6 +31,7 @@ function admin_header(string $pageTitle = 'Admin', string $active = ''): void {
             <a class="nav-link <?php echo $active === 'categories' ? 'active' : ''; ?>" href="categories.php"><i class="fa-solid fa-layer-group"></i> Danh mục</a>
             <a class="nav-link <?php echo $active === 'orders' ? 'active' : ''; ?>" href="orders.php"><i class="fa-solid fa-receipt"></i> Đơn hàng</a>
             <a class="nav-link <?php echo $active === 'rentals' ? 'active' : ''; ?>" href="rentals.php"><i class="fa-solid fa-calendar-days"></i> Quản lý Thuê</a>
+            <a class="nav-link <?php echo $active === 'settings' ? 'active' : ''; ?>" href="settings.php"><i class="fa-solid fa-gear"></i> Cấu hình</a>
         </nav>
         <main class="content">
             <div class="page-header">

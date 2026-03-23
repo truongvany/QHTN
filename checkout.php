@@ -1,6 +1,13 @@
 <?php
 require_once 'config.php';
 
+// Fetch bank settings
+$stmt = $conn->query("SELECT setting_key, setting_value FROM settings");
+$bankSettings = [];
+while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+    $bankSettings[$row['setting_key']] = $row['setting_value'];
+}
+
 // ── 1. KIỂM TRA ĐĂNG NHẬP ──
 if (!isset($_SESSION['user_id'])) {
     header('Location: login.php');
@@ -177,13 +184,13 @@ if (isset($_SESSION['user_id'])) {
     $prefillPhone = $uRow['phone']    ?? '';
 }
 
-$pageTitle = $showSuccess ? 'Đặt Hàng Thành Công | QHTN' : 'Thanh Toán | QHTN';
+$pageTitle = $showSuccess ? 'Đặt Hàng Thành Công | MinQuin' : 'Thanh Toán | MinQuin';
 require_once 'header.php';
 ?>
 
 <style>
 /* ============================================================
-   CHECKOUT PAGE — QHTN CORPORATE EDITION
+   CHECKOUT PAGE — MinQuin CORPORATE EDITION
    No border-radius · Pink-Burgundy · Đồng bộ cart/orders
 ============================================================ */
 .ck-page { background: #f8f5f6; min-height: 80vh; font-family: 'Montserrat', sans-serif; }
@@ -365,7 +372,7 @@ textarea.ck-input { resize: vertical; min-height: 90px; }
 <div class="ck-banner">
     <div class="ck-banner-inner">
         <div>
-            <div class="ck-banner-kicker">Đặt thuê trang phục QHTN</div>
+            <div class="ck-banner-kicker">Đặt thuê trang phục MinQuin</div>
             <div class="ck-banner-title"><?= $showSuccess ? 'Đặt hàng thành công' : 'Thanh toán' ?></div>
         </div>
         <div class="ck-stepper">
@@ -412,7 +419,7 @@ textarea.ck-input { resize: vertical; min-height: 90px; }
             <i class="fa-solid fa-check"></i>
         </div>
         <h2>Đặt hàng thành công!</h2>
-        <p>Cảm ơn bạn đã tin tưởng QHTN. Chúng tôi sẽ liên hệ sớm để xác nhận đơn hàng.</p>
+        <p>Cảm ơn bạn đã tin tưởng MinQuin. Chúng tôi sẽ liên hệ sớm để xác nhận đơn hàng.</p>
         <div class="ck-success-order-id">ĐƠN #<?= (int)$_SESSION['last_order_id'] ?></div>
     </div>
 
@@ -439,6 +446,28 @@ textarea.ck-input { resize: vertical; min-height: 90px; }
                 </div>
             </div>
         </div>
+
+        <!-- Payment info (QR) -->
+        <?php if (($lastOrder['payment'] ?? '') === 'bank'):
+             $qr_bin = $bankSettings['bank_bin'] ?? '970436';
+             $qr_acc = $bankSettings['bank_number'] ?? '';
+             $qr_tpl = $bankSettings['qr_template'] ?? 'compact2';
+             $qr_amt = $lastOrder['total'] ?? 0;
+             $qr_lid = $_SESSION['last_order_id'] ?? '';
+             $qr_desc = 'Thanh toan don hang ' . $qr_lid;
+             $qr_name = urlencode($bankSettings['bank_owner'] ?? 'MinQuin');
+             if ($qr_acc && $qr_bin):
+        ?>
+        <div class="ck-bill-section" style="text-align:center;border-bottom:none;padding-bottom:10px;">
+             <div class="ck-bill-section-title" style="margin-bottom:12px;text-align:left"><i class="fa-solid fa-qrcode" style="color:var(--accent-pink)"></i> Quét mã thanh toán</div>
+             <img src="https://img.vietqr.io/image/<?php echo $qr_bin; ?>-<?php echo $qr_acc; ?>-<?php echo $qr_tpl; ?>.png?amount=<?php echo $qr_amt; ?>&addInfo=<?php echo urlencode($qr_desc); ?>&accountName=<?php echo $qr_name; ?>" 
+                  style="max-width: 100%; width: 250px; border: 1px solid #ddd; border-radius: 8px;">
+             <p style="margin-top: 10px; font-size: 13px; color: #555;">
+                 Nội dung: <strong style="color:var(--accent-pink)"><?php echo htmlspecialchars($qr_desc); ?></strong>
+             </p>
+        </div>
+        <div style="height:1px;background:#f5eff2;margin:0 24px;"></div>
+        <?php endif; endif; ?>
 
         <!-- Customer info -->
         <div class="ck-bill-section">
@@ -564,6 +593,7 @@ textarea.ck-input { resize: vertical; min-height: 90px; }
                 <div class="ck-section-title">Hình thức thanh toán</div>
             </div>
             <div class="ck-section-body">
+                <style>.ck-payment-grid { grid-template-columns: 1fr 1fr; }</style>
                 <div class="ck-payment-grid">
                     <div class="ck-pay-opt">
                         <input type="radio" name="payment_method" id="pay_cod" value="cod"
@@ -585,36 +615,59 @@ textarea.ck-input { resize: vertical; min-height: 90px; }
                         </label>
                         <span class="ck-pay-check"><i class="fa-solid fa-check" style="font-size:7px"></i></span>
                     </div>
-                    <div class="ck-pay-opt">
-                        <input type="radio" name="payment_method" id="pay_momo" value="momo"
-                               <?= ($_POST['payment_method'] ?? '') === 'momo' ? 'checked' : '' ?>>
-                        <label class="ck-pay-label" for="pay_momo">
-                            <span class="ck-pay-icon">💳</span>
-                            <span class="ck-pay-name">MoMo</span>
-                            <small style="font-size:9px;color:#bbb">Ví điện tử</small>
-                        </label>
-                        <span class="ck-pay-check"><i class="fa-solid fa-check" style="font-size:7px"></i></span>
-                    </div>
                 </div>
 
                 <!-- Bank info (shown when bank is selected) -->
-                <div id="bankInfo" style="display:none; background:#fff8fb; border:1.5px solid #ecdde4; padding:16px; font-size:12px; color:#555; line-height:1.8;">
-                    <strong style="color:#2f1c26;display:block;margin-bottom:8px;font-size:11px;text-transform:uppercase;letter-spacing:1px">
-                        <i class="fa-solid fa-building-columns" style="color:var(--accent-pink)"></i> Thông tin chuyển khoản
-                    </strong>
-                    Ngân hàng: <strong>Vietcombank</strong><br>
-                    Số tài khoản: <strong>1234 5678 9012</strong><br>
-                    Tên TK: <strong>QHTN FASHION</strong><br>
-                    Nội dung: <strong>QHTN + Tên + SĐT</strong>
-                </div>
-                <!-- MoMo info -->
-                <div id="momoInfo" style="display:none; background:#fff8fb; border:1.5px solid #ecdde4; padding:16px; font-size:12px; color:#555; line-height:1.8;">
-                    <strong style="color:#2f1c26;display:block;margin-bottom:8px;font-size:11px;text-transform:uppercase;letter-spacing:1px">
-                        <i class="fa-solid fa-mobile-screen" style="color:var(--accent-pink)"></i> Ví MoMo
-                    </strong>
-                    Số điện thoại MoMo: <strong>0986 772 017</strong><br>
-                    Tên: <strong>QHTN Fashion</strong><br>
-                    Nội dung: <strong>QHTN + Tên + SĐT</strong>
+                <div id="bankInfo" style="display:none; background:#fff8fb; border:1px solid #ecccd5; margin-top:10px;">
+                    <div style="padding:16px 20px; border-bottom:1px solid #f5eff2;">
+                        <strong style="color:#2f1c26;font-size:11px;text-transform:uppercase;letter-spacing:1px;display:block;text-align:center">
+                            <i class="fa-solid fa-building-columns" style="color:var(--accent-pink);margin-right:6px"></i> Thông tin chuyển khoản
+                        </strong>
+                    </div>
+                    
+                    <div style="display:flex; flex-wrap:wrap; align-items:center; justify-content:center; gap:20px; padding:20px;">
+                        
+                        <!-- Col QR -->
+                        <div style="text-align:center;">
+                            <?php 
+                            $qr_bin = $bankSettings['bank_bin'] ?? ''; 
+                            $qr_acc = $bankSettings['bank_number'] ?? '';
+                            $qr_tpl = $bankSettings['qr_template'] ?? 'compact2';
+                            $qr_amt = $total;
+                            $qr_desc = 'MinQuin ' . ($prefillPhone ? $prefillPhone : 'Guest');
+                            $qr_name = urlencode($bankSettings['bank_owner'] ?? 'MinQuin');
+                            
+                            if ($qr_acc && $qr_bin):
+                            ?>
+                            <div style="background:#fff; padding:8px; border:1px solid #ecdde4; display:inline-block; border-radius:4px;">
+                                <img src="https://img.vietqr.io/image/<?php echo $qr_bin; ?>-<?php echo $qr_acc; ?>-<?php echo $qr_tpl; ?>.png?amount=<?php echo $qr_amt; ?>&addInfo=<?php echo urlencode($qr_desc); ?>&accountName=<?php echo $qr_name; ?>" 
+                                     style="max-width: 100%; width: 180px; display:block;">
+                            </div>
+                            <p style="margin-top: 8px; font-size: 10px; color: #888; font-style:italic;">Quét mã thanh toán nhanh</p>
+                            <?php endif; ?>
+                        </div>
+
+                        <!-- Col Text -->
+                        <div style="font-size:13px; color:#555; line-height:2.2; min-width:240px;">
+                            <div style="display:flex; justify-content:space-between; border-bottom:1px dashed #efe4e8;">
+                                <span style="font-size:11px;color:#999;">NGÂN HÀNG</span>
+                                <strong style="color:#2f1c26;font-weight:700"><?php echo htmlspecialchars($bankSettings['bank_name'] ?? ''); ?></strong>
+                            </div>
+                            <div style="display:flex; justify-content:space-between; border-bottom:1px dashed #efe4e8;">
+                                <span style="font-size:11px;color:#999;">SỐ TÀI KHOẢN</span>
+                                <strong style="color:#2f1c26;font-weight:700;font-size:14px;letter-spacing:0.5px"><?php echo htmlspecialchars($bankSettings['bank_number'] ?? ''); ?></strong>
+                            </div>
+                            <div style="display:flex; justify-content:space-between; border-bottom:1px dashed #efe4e8;">
+                                <span style="font-size:11px;color:#999;">CHỦ TÀI KHOẢN</span>
+                                <strong style="color:#2f1c26;font-weight:700;text-transform:uppercase"><?php echo htmlspecialchars($bankSettings['bank_owner'] ?? ''); ?></strong>
+                            </div>
+                            <div style="display:flex; justify-content:space-between; padding-top:4px;">
+                                <span style="font-size:11px;color:#999;">NỘI DUNG CK</span>
+                                <strong style="color:var(--accent-pink);font-weight:700"><?php echo htmlspecialchars($qr_desc); ?></strong>
+                            </div>
+                        </div>
+
+                    </div>
                 </div>
             </div>
         </div>
@@ -725,12 +778,10 @@ textarea.ck-input { resize: vertical; min-height: 90px; }
     // ── Payment method toggle ──
     const radios = document.querySelectorAll('input[name="payment_method"]');
     const bankInfo = document.getElementById('bankInfo');
-    const momoInfo = document.getElementById('momoInfo');
 
     function updatePayInfo() {
         const val = document.querySelector('input[name="payment_method"]:checked')?.value;
         if (bankInfo) bankInfo.style.display = val === 'bank' ? 'block' : 'none';
-        if (momoInfo) momoInfo.style.display = val === 'momo' ? 'block' : 'none';
     }
 
     radios.forEach(r => r.addEventListener('change', updatePayInfo));

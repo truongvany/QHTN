@@ -105,13 +105,13 @@ $statusMap = [
     'cancelled' => ['label' => 'Đã hủy',       'color' => '#e84a5f'],
 ];
 
-$pageTitle = 'Hồ sơ của tôi | QHTN';
+$pageTitle = 'Hồ sơ của tôi | MinQuin';
 include 'header.php';
 ?>
 
 <style>
 /* ============================================================
-   PROFILE PAGE — QHTN CORPORATE EDITION
+   PROFILE PAGE — MinQuin CORPORATE EDITION
    No border-radius · Enterprise tone · Pink-Burgundy palette
 ============================================================ */
 .pf-page {

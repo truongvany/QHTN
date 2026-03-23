@@ -7,7 +7,7 @@ $conn->exec("
         id         INT AUTO_INCREMENT PRIMARY KEY,
         title      VARCHAR(255) NOT NULL,
         description TEXT,
-        host       VARCHAR(100) DEFAULT 'QHTN Team',
+        host       VARCHAR(100) DEFAULT 'MinQuin Team',
         status     ENUM('upcoming','live','ended') DEFAULT 'upcoming',
         platform   ENUM('youtube','facebook','tiktok') DEFAULT 'youtube',
         stream_url VARCHAR(512),
@@ -65,12 +65,12 @@ if ((int)$stmtChk->fetchColumn() === 0) {
          DATE_ADD(NOW(), INTERVAL -7 DAY), 3821),
 
         ('👠 Workshop Phối Giày & Phụ Kiện Cùng Đồ Thuê',
-         'Giải đáp thắc mắc: nên chọn giày gì, túi gì để phối cùng từng loại trang phục. Bật mí list phụ kiện must-have khi thuê đồ ở QHTN.',
+         'Giải đáp thắc mắc: nên chọn giày gì, túi gì để phối cùng từng loại trang phục. Bật mí list phụ kiện must-have khi thuê đồ ở MinQuin.',
          'Minh Quyên', 'ended', 'tiktok', NULL, NULL,
          DATE_ADD(NOW(), INTERVAL -14 DAY), 2156),
 
         ('🌸 Xu Hướng Trang Phục Dự Đám Cưới 2026',
-         'Mùa cưới đến rồi! Review những mẫu váy, áo dài phù hợp dự đám cưới. Làm sao để nổi bật mà không lấn át cô dâu — bí kíp từ chuyên gia thời trang QHTN.',
+         'Mùa cưới đến rồi! Review những mẫu váy, áo dài phù hợp dự đám cưới. Làm sao để nổi bật mà không lấn át cô dâu — bí kíp từ chuyên gia thời trang MinQuin.',
          'Thảo Ngân', 'ended', 'youtube', 'dQw4w9WgXcQ', NULL,
          DATE_ADD(NOW(), INTERVAL -21 DAY), 5432)
     ");
@@ -131,7 +131,7 @@ if ($liveSession) {
     $featuredProducts = $stmtFeat->fetchAll(PDO::FETCH_ASSOC);
 }
 
-$pageTitle = 'QHTN Live — Thời Trang Trực Tiếp';
+$pageTitle = 'MinQuin Live — Thời Trang Trực Tiếp';
 include 'header.php';
 
 $platformMeta = [
@@ -143,7 +143,7 @@ $platformMeta = [
 
 <style>
 /* ============================================================
-   LIVESTREAM PAGE — QHTN CORPORATE EDITION
+   LIVESTREAM PAGE — MinQuin CORPORATE EDITION
    Dark-accented · Pink-Burgundy design system
 ============================================================ */
 :root {
@@ -404,10 +404,10 @@ $platformMeta = [
                     <span class="live-pulse"></span> Đang phát sóng trực tiếp
                 <?php else: ?>
                     <i class="fa-solid fa-video" style="font-size:9px;color:rgba(255,255,255,0.4)"></i>
-                    Kênh thời trang QHTN
+                    Kênh thời trang MinQuin
                 <?php endif; ?>
             </div>
-            <div class="ls-hero-title">QHTN <span>LIVE</span></div>
+            <div class="ls-hero-title">MinQuin <span>LIVE</span></div>
             <div class="ls-hero-sub">Xem trực tiếp những bộ sưu tập thời trang mới nhất, tips phối đồ từ chuyên gia, và nhận ưu đãi độc quyền chỉ dành cho người xem live.</div>
         </div>
         <div class="ls-hero-stats" style="flex-direction:row;gap:8px">
@@ -651,7 +651,7 @@ $platformMeta = [
     <div class="ls-empty">
         <i class="fa-solid fa-video"></i>
         <h3>Chưa có phiên phát sóng nào</h3>
-        <p>Theo dõi QHTN trên mạng xã hội để nhận thông báo về các phiên live sắp tới.</p>
+        <p>Theo dõi MinQuin trên mạng xã hội để nhận thông báo về các phiên live sắp tới.</p>
     </div>
     <?php endif; ?>
 

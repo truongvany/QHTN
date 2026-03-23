@@ -82,7 +82,7 @@ $colorMap = [
     'Trắng' => '#f5f5f5'
 ];
 
-$pageTitle = $product['name'] . ' | QHTN';
+$pageTitle = $product['name'] . ' | MinQuin';
 include 'header.php';
 ?>
 

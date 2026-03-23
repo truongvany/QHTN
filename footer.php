@@ -4,8 +4,8 @@
     <div class="footer-container">
         
         <div class="footer-col about-col">
-            <h3>Về QHTN</h3>
-            <p>QHTN Fashion mang đến vẻ đẹp rạng ngời cho bạn qua những bộ trang phục thời thượng nhất với chi phí hợp lý.</p>
+            <h3>Về MinQuin</h3>
+            <p>MinQuin Fashion mang đến vẻ đẹp rạng ngời cho bạn qua những bộ trang phục thời thượng nhất với chi phí hợp lý.</p>
         </div>
 
         <div class="footer-col contact-col">
@@ -23,7 +23,7 @@
                 </li>
                 <li>
                     <i class="fa-solid fa-envelope"></i> 
-                    <a href="mailto:contact@qhtn.com">contact@qhtn.com</a>
+                    <a href="mailto:contact@MinQuin.com">contact@MinQuin.com</a>
                 </li>
             </ul>
         </div>
@@ -46,7 +46,7 @@
     </div>
 
     <div class="copyright">
-        <p>© 2025 QHTN Fashion. All rights reserved.</p>
+        <p>© 2025 MinQuin Fashion. All rights reserved.</p>
     </div>
 </footer>
 

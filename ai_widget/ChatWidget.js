@@ -1,5 +1,5 @@
 /**
- * AI Chat Widget - QHTN Fashion Rental
+ * AI Chat Widget - MinQuin Fashion Rental
  * Pink Luxury Theme
  * Version 2.0 - Phase 4: Product Integration
  */
@@ -86,7 +86,7 @@ class AIChartWidget {
                                 autocomplete="off"
                             />
                             <button class="ai-send-btn" id="aiSendBtn" title="Gửi">
-                                ✈️
+                                ➤
                             </button>
                     </div>
                 </div>
@@ -226,7 +226,7 @@ class AIChartWidget {
             const welcomeMsg = {
                 id: `msg-${Date.now()}`,
                 sender: 'ai',
-                text: 'Xin chào, chúc Quý khách một ngày tốt lành! ❤ Đây là Atelier, trợ lý ảo của QHTN Fashion Rental. Quý khách muốn Atelier hỗ trợ về vấn đề gì ạ?',
+                text: 'Xin chào, chúc Quý khách một ngày tốt lành! ❤ Đây là Atelier, trợ lý ảo của MinQuin Fashion Rental. Quý khách muốn Atelier hỗ trợ về vấn đề gì ạ?',
                 timestamp: new Date().toISOString()
             };
             this.messages.push(welcomeMsg);
@@ -481,12 +481,12 @@ class AIChartWidget {
      */
     loadFromStorage() {
         try {
-            const stored = localStorage.getItem('qhtn_ai_chat_messages');
+            const stored = localStorage.getItem('MinQuin_ai_chat_messages');
             if (stored) {
                 this.messages = JSON.parse(stored);
             }
 
-            const conversationId = localStorage.getItem('qhtn_conversation_id');
+            const conversationId = localStorage.getItem('MinQuin_conversation_id');
             if (conversationId) {
                 this.currentConversationId = conversationId;
             }
@@ -501,9 +501,9 @@ class AIChartWidget {
      */
     saveToStorage() {
         try {
-            localStorage.setItem('qhtn_ai_chat_messages', JSON.stringify(this.messages));
+            localStorage.setItem('MinQuin_ai_chat_messages', JSON.stringify(this.messages));
             if (this.currentConversationId) {
-                localStorage.setItem('qhtn_conversation_id', this.currentConversationId);
+                localStorage.setItem('MinQuin_conversation_id', this.currentConversationId);
             }
         } catch (error) {
             console.error('Error saving to storage:', error);
@@ -546,7 +546,7 @@ class AIChartWidget {
             }
 
             // Log feedback (for analytics in Phase 6)
-            console.log(`📊 User feedback: Message ${messageId} → ${rating > 0 ? 'Helpful' : 'Not helpful'}`);
+            console.log(`User feedback: Message ${messageId} → ${rating > 0 ? 'Helpful' : 'Not helpful'}`);
 
         } catch (error) {
             console.error('Feedback error:', error);

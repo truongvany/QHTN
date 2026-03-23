@@ -1,9 +1,9 @@
 -- 1. Xóa database cũ nếu tồn tại để làm mới hoàn toàn
-DROP DATABASE IF EXISTS qhtn_fashion;
+DROP DATABASE IF EXISTS MinQuin_fashion;
 
 -- 2. Tạo database mới
-CREATE DATABASE qhtn_fashion CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-USE qhtn_fashion;
+CREATE DATABASE MinQuin_fashion CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+USE MinQuin_fashion;
 
 -- --------------------------------------------------------
 -- 3. Bảng Users (Người dùng)
@@ -610,3 +610,20 @@ INSERT INTO product_variants (product_id, size, color, sku, price_override, stoc
 (131, 'S', 'Trắng', 'VDB131-S-TRANG', NULL, 2),
 (131, 'M', 'Be', 'VDB131-M-BE', NULL, 3),
 (131, 'L', 'Đen', 'VDB131-L-DEN', NULL, 2);
+
+-- --------------------------------------------------------
+-- Bảng Settings (Cấu hình)
+-- --------------------------------------------------------
+CREATE TABLE settings (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    setting_key VARCHAR(50) NOT NULL UNIQUE,
+    setting_value TEXT,
+    description VARCHAR(255)
+) ENGINE=InnoDB;
+
+INSERT INTO settings (setting_key, setting_value, description) VALUES
+('bank_name', 'Vietcombank', 'Tên ngân hàng'),
+('bank_number', '123456789', 'Số tài khoản'),
+('bank_owner', 'MinQuin FASHION', 'Tên chủ tài khoản'),
+('bank_bin', '970436', 'Mã BIN ngân hàng (để tạo QR)'),
+('qr_template', 'compact2', 'Giao diện QR (compact, compact2, print)');

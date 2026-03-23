@@ -57,7 +57,7 @@ observeLazyImages() {
 New greeting with clearer value prop:
 
 ```
-🎀 **Chào mừng!** Mình là trợ lý ảo của QHTN Fashion Rental.
+🎀 **Chào mừng!** Mình là trợ lý ảo của MinQuin Fashion Rental.
 
 Mình có thể giúp bạn:
 ✨ Tìm áo dài, váy, giày, phụ kiện

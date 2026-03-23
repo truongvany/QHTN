@@ -20,7 +20,7 @@ if (session_status() === PHP_SESSION_NONE) {
 }
 
 $host = 'localhost';
-$dbname = 'qhtn_fashion';
+$dbname = 'MinQuin_fashion';
 $username = 'root';
 $password = ''; // Mật khẩu trống (mặc định XAMPP)
 

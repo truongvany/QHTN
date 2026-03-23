@@ -23,7 +23,7 @@ $isHome = isset($is_homepage) && $is_homepage === true;
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>QHTN - Thuê Đồ Thời Trang</title>
+    <title>MinQuin - Thuê Đồ Thời Trang</title>
     
     <!-- Favicon -->
     <link rel="icon" type="image/png" href="assets/logo.png">
@@ -458,8 +458,8 @@ $isHome = isset($is_homepage) && $is_homepage === true;
 <div class="sticky-wrapper <?= $isHome ? 'home-mode' : '' ?>">
     <header>
         <div class="logo">
-            <a href="index.php" title="Trang chủ QHTN">
-                <img src="assets/logo.png" alt="QHTN Logo" />
+            <a href="index.php" title="Trang chủ MinQuin">
+                <img src="assets/logo.png" alt="MinQuin Logo" />
             </a>
         </div>
         
@@ -504,7 +504,7 @@ $isHome = isset($is_homepage) && $is_homepage === true;
     <nav class="main-menu">
         <ul>
             <li><a href="index.php" class="menu-link <?= ($current_page == 'index.php') ? 'active' : '' ?>">Trang Chủ</a></li>
-            <li><a href="ve_chung_toi.php" class="menu-link">Về QHTN</a></li>
+            <li><a href="ve_chung_toi.php" class="menu-link">Về MinQuin</a></li>
             
             <li class="dropdown-container">
                 <a href="javascript:void(0)" class="menu-link" id="product-toggle">

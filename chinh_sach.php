@@ -113,7 +113,7 @@ include 'header.php';
             <div class="policy-icon"><i class="fa-solid fa-rotate"></i></div>
             <div class="policy-content">
                 <h3>2. Chính sách Đổi / Trả</h3>
-                <p>QHTN Fashion hỗ trợ đổi trả linh hoạt trong các trường hợp:</p>
+                <p>MinQuin Fashion hỗ trợ đổi trả linh hoạt trong các trường hợp:</p>
                 <ul>
                     <li>Đổi size/mẫu miễn phí trong vòng <strong>24h</strong> sau khi nhận hàng nếu chưa sử dụng.</li>
                     <li>Sản phẩm bị lỗi do nhà cung cấp (rách, bẩn, hỏng khóa...) được đổi mới ngay lập tức.</li>
@@ -140,7 +140,7 @@ include 'header.php';
             <div class="policy-icon"><i class="fa-solid fa-truck-fast"></i></div>
             <div class="policy-content">
                 <h3>4. Chính sách Giao vận</h3>
-                <p>QHTN Fashion hợp tác với các đơn vị vận chuyển uy tín:</p>
+                <p>MinQuin Fashion hợp tác với các đơn vị vận chuyển uy tín:</p>
                 <ul>
                     <li><strong>Nội thành:</strong> Giao siêu tốc trong 2h-4h. Freeship đơn > 500k.</li>
                     <li><strong>Ngoại thành/Tỉnh:</strong> Giao hàng từ 2-4 ngày làm việc.</li>

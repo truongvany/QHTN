@@ -61,13 +61,13 @@ foreach ($_SESSION['cart'] as $item) {
     $totalItems += $qty;
 }
 
-$pageTitle = 'Giỏ Hàng | QHTN';
+$pageTitle = 'Giỏ Hàng | MinQuin';
 require_once 'header.php';
 ?>
 
 <style>
 /* ============================================================
-   CART PAGE — QHTN CORPORATE EDITION
+   CART PAGE — MinQuin CORPORATE EDITION
    No border-radius · Pink-Burgundy · Đồng bộ orders/profile
 ============================================================ */
 .ct-page { background: #f8f5f6; min-height: 80vh; font-family: 'Montserrat', sans-serif; }
@@ -288,7 +288,7 @@ require_once 'header.php';
     <div class="ct-empty" style="grid-column: 1 / -1;">
         <div class="ct-empty-icon"><i class="fa-solid fa-bag-shopping"></i></div>
         <h2>Giỏ hàng trống</h2>
-        <p>Bạn chưa chọn được trang phục nào. Hãy khám phá bộ sưu tập của QHTN!</p>
+        <p>Bạn chưa chọn được trang phục nào. Hãy khám phá bộ sưu tập của MinQuin!</p>
         <a href="ao_dai.php" class="ct-empty-btn">
             <i class="fa-solid fa-sparkles" style="margin-right:6px"></i> Khám phá bộ sưu tập
         </a>
@@ -465,7 +465,23 @@ require_once 'header.php';
         el._t = setTimeout(() => el.classList.remove('show'), 3000);
     }
 
-    // ── Adjust qty inline ──
+    // ── Update Logic ──
+    const inputs = document.querySelectorAll('.ct-qty-input, .ct-days-input');
+    inputs.forEach(i => i.addEventListener('change', () => {
+        // Debounce update to server
+        clearTimeout(window.saveTimer);
+        window.saveTimer = setTimeout(() => {
+            const form = document.getElementById('cartForm');
+            // Inject hidden update trigger
+            if (!form.querySelector('input[name="update_cart"]')) {
+                const h = document.createElement('input');
+                h.type = 'hidden'; h.name = 'update_cart'; h.value = '1';
+                form.appendChild(h);
+            }
+            form.submit();
+        }, 800);
+    }));
+
     window.adjustQty = function(id, delta) {
         const inp = document.getElementById('qty-' + id);
         if (!inp) return;
@@ -474,6 +490,18 @@ require_once 'header.php';
         inp.value = v;
         const price = getPrice(id);
         recalcRow(id, price);
+
+        // Auto save
+        clearTimeout(window.saveTimer);
+        window.saveTimer = setTimeout(() => {
+            const form = document.getElementById('cartForm');
+            if (!form.querySelector('input[name="update_cart"]')) {
+                const h = document.createElement('input');
+                h.type = 'hidden'; h.name = 'update_cart'; h.value = '1';
+                form.appendChild(h);
+            }
+            form.submit();
+        }, 800);
     };
 
     function getPrice(id) {

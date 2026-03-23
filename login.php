@@ -49,7 +49,7 @@ if (isset($_POST['login'])) {
 
 <div class="auth-container">
     <form method="POST" class="auth-form">
-        <h2>Đăng Nhập QHTN</h2>
+        <h2>Đăng Nhập MinQuin</h2>
         
         <?php if(isset($_GET['status']) && $_GET['status']=='success'): ?>
             <div class="alert success">

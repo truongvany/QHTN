@@ -52,7 +52,7 @@ try {
         $matchedProducts = $stmt->fetchAll(PDO::FETCH_ASSOC);
         
         if ($matchedProducts) {
-            $context .= "🔍 SẢN PHẨM ĐANG CÓ BÁN TẠI CỬA HÀNG:\n";
+            $context .= "SẢN PHẨM ĐANG CÓ BÁN TẠI CỬA HÀNG:\n";
             foreach ($matchedProducts as $prod) {
                 $desc = strip_tags(substr($prod['description'], 0, 100)) . '...';
                 $context .= "- ID: {$prod['id']} | Tên: {$prod['name']} | Danh mục ID: {$prod['category_id']} | Giá thuê: " . number_format($prod['price']) . " VND/ngày | Mô tả ngắn: $desc\n";
@@ -74,7 +74,7 @@ try {
 
     // Nếu người dùng hỏi về chính sách, thêm context chính sách
     if (strpos(strtolower($userMessage), 'chính sách') !== false || strpos(strtolower($userMessage), 'thuê') !== false || strpos(strtolower($userMessage), 'phí') !== false) {
-        $context .= "\n📜 CHÍNH SÁCH CỬA HÀNG:\n";
+        $context .= "\nCHÍNH SÁCH CỬA HÀNG:\n";
         $context .= "- Khách hàng Premium được giảm giá 10% và miễn phí ship.\n";
         $context .= "- Giá niêm yết là giá thuê tính theo 1 ngày (24 giờ).\n";
         $context .= "- Phí cọc thường là 50% đến 100% giá trị sản phẩm (được hoàn lại khi trả đồ nguyên vẹn).\n";
@@ -88,13 +88,13 @@ try {
 /**
  * 3. GIAO TIẾP VỚI GROQ LLM
  */
-$systemPrompt = "Bạn là Concierge - Trợ lý AI cao cấp của QHTN Fashion Rental.
+$systemPrompt = "Bạn là Concierge - Trợ lý AI cao cấp của MinQuin Fashion Rental.
 Quy tắc hành xử:
 1. LUÔN LUÔN trả lời ngắn gọn, tinh tế, lịch sự, chuẩn mực bằng tiếng Việt (không dài dòng quá 4 câu).
 2. Tích hợp emoji sang trọng (✨, 🎀, 👗, 💎) một cách tinh tế.
 3. Nếu người dùng hỏi về sản phẩm, hãy dựa TRỰC TIẾP vào CONTEXT dưới đây để trả lời.
-4. NGHÊM CẤM sử dụng các từ ngữ kỹ thuật như 'database', 'cơ sở dữ liệu', 'hệ thống', 'trong danh sách'. Thay vào đó, nếu có sản phẩm, hãy nói 'hiện tại cửa hàng chúng tôi có...', 'trong bộ sưu tập của QHTN có...'. Mời khách nhấn vào thẻ sản phẩm để xem.
-5. Nếu người dùng hỏi ngoài phạm vi thời trang/cửa hàng, hãy khéo léo từ chối và hướng về dịch vụ của QHTN Fashion Rental.
+4. NGHÊM CẤM sử dụng các từ ngữ kỹ thuật như 'database', 'cơ sở dữ liệu', 'hệ thống', 'trong danh sách'. Thay vào đó, nếu có sản phẩm, hãy nói 'hiện tại cửa hàng chúng tôi có...', 'trong bộ sưu tập của MinQuin có...'. Mời khách nhấn vào thẻ sản phẩm để xem.
+5. Nếu người dùng hỏi ngoài phạm vi thời trang/cửa hàng, hãy khéo léo từ chối và hướng về dịch vụ của MinQuin Fashion Rental.
 
 [CONTEXT BẮT ĐẦU]
 $context

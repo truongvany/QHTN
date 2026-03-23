@@ -100,7 +100,7 @@ $statusMeta = [
     'cancelled' => ['label' => 'Đã hủy',       'icon' => 'fa-ban',            'color' => '#e84a5f', 'bg' => '#fff5f5'],
 ];
 
-$pageTitle = 'Đơn Hàng Của Tôi | QHTN';
+$pageTitle = 'Đơn Hàng Của Tôi | MinQuin';
 include 'header.php';
 
 // Build query string helper
@@ -113,7 +113,7 @@ function buildQs(array $overrides = []): string {
 
 <style>
 /* ============================================================
-   ORDERS PAGE — QHTN CORPORATE EDITION
+   ORDERS PAGE — MinQuin CORPORATE EDITION
    Đồng bộ với profile.php · No border-radius · Pink-Burgundy
 ============================================================ */
 .ord-page { background: #f8f5f6; min-height: 80vh; font-family: 'Montserrat', sans-serif; }
@@ -471,7 +471,7 @@ function buildQs(array $overrides = []): string {
             <div class="ord-empty">
                 <i class="fa-solid fa-bag-shopping"></i>
                 <h3><?= $search ? 'Không tìm thấy đơn hàng' : 'Chưa có đơn hàng nào' ?></h3>
-                <p><?= $search ? 'Thử từ khóa khác hoặc xóa bộ lọc.' : 'Bắt đầu thuê ngay bộ sưu tập trang phục cao cấp của QHTN.' ?></p>
+                <p><?= $search ? 'Thử từ khóa khác hoặc xóa bộ lọc.' : 'Bắt đầu thuê ngay bộ sưu tập trang phục cao cấp của MinQuin.' ?></p>
                 <a href="<?= $search ? 'orders.php' : 'ao_dai.php' ?>">
                     <?= $search ? 'Xem tất cả đơn hàng' : 'Khám phá bộ sưu tập' ?>
                 </a>

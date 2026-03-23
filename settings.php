@@ -4,7 +4,7 @@ if (!isset($_SESSION['user_id'])) {
     header('Location: login.php');
     exit();
 }
-$pageTitle = 'Cài đặt | QHTN';
+$pageTitle = 'Cài đặt | MinQuin';
 include 'header.php';
 ?>
 

@@ -168,21 +168,21 @@ include 'header.php';
 <div class="container">
     <div class="about-section">
         <span class="small-title">Về Chúng Tôi</span>
-        <h1 class="main-title">QHTN FASHION</h1>
+        <h1 class="main-title">MinQuin FASHION</h1>
 
         <div class="about-content">
             <div>
                 <p style="margin-bottom: 15px;">
-                    Chào mừng đến với <strong>QHTN</strong> - thương hiệu cho thuê đồ thiết kế chính hãng hàng đầu tại Việt Nam. Chúng tôi tự hào cung cấp dịch vụ cho thuê trang phục đi tiệc và sự kiện chất lượng cao, đảm bảo 100% đồ chính hãng.
+                    Chào mừng đến với <strong>MinQuin</strong> - thương hiệu cho thuê đồ thiết kế chính hãng hàng đầu tại Việt Nam. Chúng tôi tự hào cung cấp dịch vụ cho thuê trang phục đi tiệc và sự kiện chất lượng cao, đảm bảo 100% đồ chính hãng.
                 </p>
                 <p>
-                    Với nhiều năm kinh nghiệm trong ngành thời trang, QHTN đã xây dựng được một bộ sưu tập đồ thiết kế đa dạng và phong phú, từ những bộ váy dài sang trọng cho đến những trang phục cá tính và hiện đại.
+                    Với nhiều năm kinh nghiệm trong ngành thời trang, MinQuin đã xây dựng được một bộ sưu tập đồ thiết kế đa dạng và phong phú, từ những bộ váy dài sang trọng cho đến những trang phục cá tính và hiện đại.
                 </p>
             </div>
 
             <div>
                 <p style="margin-bottom: 15px;">
-                    Chúng tôi luôn cập nhật xu hướng mới nhất và mang lại cho khách hàng những trải nghiệm thời trang tuyệt vời. Với QHTN, bạn sẽ không chỉ được trải nghiệm thời trang chất lượng cao mà còn được hưởng những dịch vụ chuyên nghiệp và tận tâm.
+                    Chúng tôi luôn cập nhật xu hướng mới nhất và mang lại cho khách hàng những trải nghiệm thời trang tuyệt vời. Với MinQuin, bạn sẽ không chỉ được trải nghiệm thời trang chất lượng cao mà còn được hưởng những dịch vụ chuyên nghiệp và tận tâm.
                 </p>
                 <p>
                     Hãy để chúng tôi giúp bạn tỏa sáng trong những bữa tiệc và sự kiện quan trọng của cuộc đời!
