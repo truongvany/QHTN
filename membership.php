@@ -42,7 +42,7 @@ include 'header.php';
 .mem-hero {
     background:
         linear-gradient(105deg, rgba(47,28,38,0.88) 0%, rgba(90,33,56,0.82) 50%, rgba(139,48,87,0.78) 100%),
-        url('img/avatars/hero.webp') center center / cover no-repeat;
+        url('https://as1.ftcdn.net/v2/jpg/09/98/01/30/1000_F_998013048_B6E7O82MExYQeDhtpmsp9ZVQCMUfrxB6.jpg') center center / cover no-repeat;
     padding: 72px 5%;
     display: flex;
     align-items: center;

@@ -1,8 +1,12 @@
 <?php 
 require_once 'config.php'; 
-include 'header.php'; 
+include 'header.php';
 
-$category_id = 3; // Set Quần Áo
+$category_id = isset($_GET['category']) && is_numeric($_GET['category']) ? (int)$_GET['category'] : 3;
+
+$categoryStmt = $conn->prepare("SELECT id, name FROM categories ORDER BY id ASC");
+$categoryStmt->execute();
+$categories = $categoryStmt->fetchAll(PDO::FETCH_ASSOC);
 
 $size = isset($_GET['size']) ? trim($_GET['size']) : '';
 $color = isset($_GET['color']) ? trim($_GET['color']) : '';
@@ -88,6 +92,18 @@ $products = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 <div class="filter-title">Tìm mẫu phù hợp</div>
             </div>
             <form class="filter-form auto-filter-form" method="get">
+                <div class="filter-section">
+                    <h4>Danh mục</h4>
+                    <select name="category" class="filter-select" onchange="document.querySelector('.auto-filter-form').submit();">
+                        <option value="3" <?= $category_id === 3 ? 'selected' : ''; ?>>Tất cả danh mục</option>
+                        <?php foreach ($categories as $cat): ?>
+                            <option value="<?= htmlspecialchars($cat['id']); ?>" <?= $category_id === (int)$cat['id'] ? 'selected' : ''; ?>>
+                                <?= htmlspecialchars($cat['name']); ?>
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+
                 <div class="filter-section">
                     <h4>Kích cỡ</h4>
                     <div class="pill-options">

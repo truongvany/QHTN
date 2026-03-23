@@ -227,14 +227,14 @@ $isHome = isset($is_homepage) && $is_homepage === true;
         }
 
         .badge-admin:hover {
-            background: #f7d5e2;
+            background: #f5ccdc;
         }
 
         .btn-login {
             background: var(--accent-pink);
             color: white;
             padding: 7px 14px;
-            border: none;
+            border: 1px solid #350303;
             border-radius: 50px;
             font-weight: 700;
             font-size: 11px;
@@ -448,7 +448,7 @@ $isHome = isset($is_homepage) && $is_homepage === true;
             }
 
             .profile-icon {
-                font-size: 16px;
+                font-size: 10px;
             }
         }
     </style>
@@ -482,7 +482,7 @@ $isHome = isset($is_homepage) && $is_homepage === true;
             
             <div class="auth-links">
                 <?php if (isset($_SESSION['username'])): ?>
-                    <a href="profile.php" title="Trang cá nhân" class="profile-icon" style="margin-right: 14px; <?= $isHome ? 'color:#fff' : 'color:#322'; ?>; font-size: 32px; display:flex; align-items:center;">
+                    <a href="profile.php" title="Trang cá nhân" class="profile-icon" style="margin-right: 14px; <?= $isHome ? 'color: red' : 'color:#322'; ?>; font-size: 25px; display:flex; align-items:center;">
                         <i class="fa-solid fa-circle-user" style="font-size: 28px;"></i>
                     </a>
                     <div class="user-dropdown">
@@ -495,7 +495,7 @@ $isHome = isset($is_homepage) && $is_homepage === true;
                         </a>
                     </div>
                 <?php else: ?>
-                    <a href="login.php" class="btn-login" style="<?= $isHome ? 'background:#fff; border:none;' : '' ?>"><i class="fa-regular fa-user"></i> Đăng nhập</a>
+                    <a href="login.php" class="btn-login" style="<?= $isHome ? 'background: gray; border:1px solid #350303;' : '' ?>"><i class="fa-regular fa-user"></i> Đăng nhập</a>
                 <?php endif; ?>
             </div>
         </div>

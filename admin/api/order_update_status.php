@@ -3,7 +3,7 @@
  * Admin API: Update order or item status with optional admin notes
  * POST: order_id, status, admin_notes (optional), item_id (optional)
  */
-require_once __DIR__ . '/../config.php';
+require_once __DIR__ . '/../init.php';
 
 header('Content-Type: application/json');
 

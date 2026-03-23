@@ -31,8 +31,6 @@ function admin_header(string $pageTitle = 'Admin', string $active = ''): void {
             <a class="nav-link <?php echo $active === 'categories' ? 'active' : ''; ?>" href="categories.php"><i class="fa-solid fa-layer-group"></i> Danh mục</a>
             <a class="nav-link <?php echo $active === 'orders' ? 'active' : ''; ?>" href="orders.php"><i class="fa-solid fa-receipt"></i> Đơn hàng</a>
             <a class="nav-link <?php echo $active === 'rentals' ? 'active' : ''; ?>" href="rentals.php"><i class="fa-solid fa-calendar-days"></i> Quản lý Thuê</a>
-            <a class="nav-link <?php echo $active === 'inventory' ? 'active' : ''; ?>" href="inventory.php"><i class="fa-solid fa-boxes-stacked"></i> Kho Hàng</a>
-            <a class="nav-link <?php echo $active === 'reports' ? 'active' : ''; ?>" href="reports.php"><i class="fa-solid fa-chart-line"></i> Báo cáo</a>
         </nav>
         <main class="content">
             <div class="page-header">

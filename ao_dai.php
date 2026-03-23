@@ -2,7 +2,13 @@
 require_once 'config.php';
 include 'header.php';
 
-$category_id = 1; // Áo Dài
+// Lấy category_id từ URL, mặc định là 1 (Áo Dài)
+$category_id = isset($_GET['category']) && is_numeric($_GET['category']) ? (int)$_GET['category'] : 1;
+
+// Lấy danh sách tất cả danh mục
+$categoryStmt = $conn->prepare("SELECT id, name FROM categories ORDER BY id ASC");
+$categoryStmt->execute();
+$categories = $categoryStmt->fetchAll(PDO::FETCH_ASSOC);
 
 // Lấy bộ lọc
 $size = isset($_GET['size']) ? trim($_GET['size']) : '';
@@ -81,7 +87,18 @@ $products = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 <div class="container" style="padding: 40px 5%; min-height: 60vh;">
     <div class="section-heading">
-        <h2 class="section-title"><i class="fa-solid fa-vest-patches"></i> Bộ Sưu Tập Áo Dài</h2>
+        <h2 class="section-title"><i class="fa-solid fa-vest-patches"></i> 
+        <?php 
+            $selectedCategory = null;
+            foreach ($categories as $cat) {
+                if ((int)$cat['id'] === $category_id) {
+                    $selectedCategory = $cat['name'];
+                    break;
+                }
+            }
+            echo $selectedCategory ? 'Bộ Sưu Tập ' . htmlspecialchars($selectedCategory) : 'Bộ Sưu Tập Sản Phẩm';
+        ?>
+        </h2>
     </div>
 
     <div class="catalog-layout">
@@ -91,6 +108,18 @@ $products = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 <div class="filter-title">Tìm mẫu phù hợp</div>
             </div>
             <form class="filter-form auto-filter-form" method="get">
+                <div class="filter-section">
+                    <h4>Danh mục</h4>
+                    <select name="category" class="filter-select" onchange="document.querySelector('.auto-filter-form').submit();">
+                        <option value="1" <?= $category_id === 1 ? 'selected' : ''; ?>>Tất cả danh mục</option>
+                        <?php foreach ($categories as $cat): ?>
+                            <option value="<?= htmlspecialchars($cat['id']); ?>" <?= $category_id === (int)$cat['id'] ? 'selected' : ''; ?>>
+                                <?= htmlspecialchars($cat['name']); ?>
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+
                 <div class="filter-section">
                     <h4>Kích cỡ</h4>
                     <div class="pill-options">
@@ -185,7 +214,7 @@ $products = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     ?>
                     <div style="grid-column: 1 / -1; text-align: center; padding: 50px; color: #777;">
                         <i class="fa-solid fa-shirt" style="font-size: 60px; margin-bottom: 20px; color: #ddd;"></i>
-                        <p>Hiện chưa có mẫu áo dài nào được cập nhật.</p>
+                        <p>Hiện chưa có sản phẩm nào được cập nhật cho danh mục này.</p>
                         <a href="index.php" style="color: var(--accent-pink, #ff4757); text-decoration: underline;">Quay về trang chủ</a>
                     </div>
                 <?php endif; ?>

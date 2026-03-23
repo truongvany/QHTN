@@ -3,7 +3,7 @@
  * Admin API: Get revenue report data by period
  * GET: period (daily/monthly/yearly), start_date, end_date
  */
-require_once __DIR__ . '/../config.php';
+require_once __DIR__ . '/../init.php';
 
 header('Content-Type: application/json');
 

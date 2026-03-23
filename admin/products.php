@@ -58,7 +58,7 @@ $products = $pdo->query('SELECT p.*, c.name AS category_name FROM products p LEF
 admin_header('Sản phẩm', 'products');
 ?>
 <div class="grid grid-2">
-    <div class="card">
+    <div class="card" id="form-card" style="display: none;">
         <h3 id="form-title">Thêm sản phẩm</h3>
         <form method="POST" enctype="multipart/form-data">
             <input type="hidden" name="product_id" id="product_id">
@@ -79,7 +79,8 @@ admin_header('Sản phẩm', 'products');
             <input class="input" type="file" name="image">
             <div class="actions">
                 <button type="submit" name="save_product"><i class="fa-solid fa-save"></i> Lưu</button>
-                <a class="btn ghost" href="#" onclick="resetForm(); return false;">Làm mới</a>
+                <button type="button" class="btn" style="background: #f3f4f6; color: #4b5563;" onclick="resetForm();">Làm mới</button>
+                <button type="button" class="btn" style="background: #fee2e2; color: #b91c1c;" onclick="toggleForm();">Đóng</button>
             </div>
         </form>
     </div>
@@ -87,7 +88,10 @@ admin_header('Sản phẩm', 'products');
     <div class="card">
         <div class="section-title">
             <h3>Danh sách sản phẩm</h3>
-            <span class="badge"><i class="fa-solid fa-database"></i> <?php echo count($products); ?></span>
+            <div style="display: flex; gap: 10px; align-items: center;">
+                <span class="badge"><i class="fa-solid fa-database"></i> <?php echo count($products); ?></span>
+                <button class="btn" onclick="toggleForm()" title="Thêm sản phẩm"><i class="fa-solid fa-plus"></i> Thêm mới</button>
+            </div>
         </div>
         <table class="table">
             <tr><th>ID</th><th>Tên</th><th>Danh mục</th><th>Giá</th><th>Tiền cọc</th><th>Hình</th><th></th></tr>
@@ -110,7 +114,19 @@ admin_header('Sản phẩm', 'products');
 </div>
 
 <script>
+function toggleForm() {
+    const formCard = document.getElementById('form-card');
+    if (formCard.style.display === 'none' || formCard.style.display === '') {
+        formCard.style.display = 'block';
+        resetForm();
+    } else {
+        formCard.style.display = 'none';
+        resetForm();
+    }
+}
+
 function editProduct(product) {
+    document.getElementById('form-card').style.display = 'block';
     document.getElementById('form-title').innerText = 'Sửa sản phẩm';
     document.getElementById('product_id').value = product.id;
     document.getElementById('name').value = product.name;

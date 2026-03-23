@@ -3,7 +3,7 @@
  * Admin API: Mark rental item as returned and restore stock
  * POST: order_id, item_id
  */
-require_once __DIR__ . '/../config.php';
+require_once __DIR__ . '/../init.php';
 
 header('Content-Type: application/json');
 

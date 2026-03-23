@@ -13,7 +13,7 @@ $thisMonthRevenue = (float)$pdo->query("
     AND YEAR(created_at) = YEAR(NOW())
 ")->fetchColumn();
 
-// Get rentals due in next 3 days
+// Rentals due soon
 $dueSoonRentals = $pdo->query("
     SELECT 
         od.id, o.id as order_id, o.created_at,
@@ -31,8 +31,34 @@ $dueSoonRentals = $pdo->query("
     LIMIT 5
 ")->fetchAll(PDO::FETCH_ASSOC);
 
-$latestOrders = $pdo->query('SELECT o.*, u.username AS customer_name, u.email, u.phone FROM orders o LEFT JOIN users u ON o.user_id = u.id ORDER BY o.created_at DESC LIMIT 5')->fetchAll(PDO::FETCH_ASSOC);
-$topCategories = $pdo->query('SELECT c.name, COUNT(p.id) AS total_products FROM categories c LEFT JOIN products p ON p.category_id = c.id GROUP BY c.id ORDER BY total_products DESC LIMIT 5')->fetchAll(PDO::FETCH_ASSOC);
+// Latest orders
+$latestOrders = $pdo->query('SELECT o.*, u.username AS customer_name FROM orders o LEFT JOIN users u ON o.user_id = u.id ORDER BY o.created_at DESC LIMIT 5')->fetchAll(PDO::FETCH_ASSOC);
+
+// Chart Data (Last 7 days)
+$chartSql = "
+    SELECT 
+        DATE_FORMAT(o.created_at, '%d/%m') as period,
+        SUM(o.total_price) as revenue
+    FROM orders o
+    WHERE o.status != 'cancelled'
+        AND o.created_at >= DATE_SUB(CURDATE(), INTERVAL 6 DAY)
+    GROUP BY DATE(o.created_at)
+    ORDER BY DATE(o.created_at) ASC
+";
+$chartData = $pdo->query($chartSql)->fetchAll(PDO::FETCH_ASSOC);
+
+$dates = [];
+for ($i = 6; $i >= 0; $i--) {
+    $date = date('d/m', strtotime("-$i days"));
+    $dates[$date] = 0;
+}
+foreach ($chartData as $row) {
+    if (isset($dates[$row['period']])) {
+        $dates[$row['period']] = (float)$row['revenue'];
+    }
+}
+$periodLabels = array_keys($dates);
+$periodRevenue = array_values($dates);
 
 admin_header('Tổng quan', 'dashboard');
 ?>
@@ -47,21 +73,18 @@ admin_header('Tổng quan', 'dashboard');
     
     .stat-card {
         background: white;
-        border: 1px solid #e0e0e0;
-        border-radius: 8px;
-        padding: 20px;
-        text-align: center;
-        transition: transform 0.2s, box-shadow 0.2s;
-    }
-    
-    .stat-card:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        border: 1px solid #eef2ff;
+        border-radius: 12px;
+        padding: 24px;
+        text-align: left;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+        display: flex;
+        flex-direction: column;
     }
     
     .stat-label {
-        font-size: 12px;
-        color: #999;
+        font-size: 13px;
+        color: #64748b;
         font-weight: 600;
         text-transform: uppercase;
         letter-spacing: 0.5px;
@@ -70,24 +93,16 @@ admin_header('Tổng quan', 'dashboard');
     
     .stat-value {
         font-size: 28px;
-        font-weight: 700;
-        color: #333;
-    }
-    
-    .stat-card.accent .stat-value {
-        color: #e95a8a;
+        font-weight: 800;
+        color: #0f172a;
     }
     
     .stat-card.accent {
-        background: linear-gradient(135deg, #ffd6e6 0%, #f5e9f1 100%);
-        border-color: #f48fb1;
+        background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+        color: #fff;
     }
-    
-    .stat-trend {
-        font-size: 11px;
-        color: #999;
-        margin-top: 8px;
-    }
+    .stat-card.accent .stat-label { color: #e0e7ff; }
+    .stat-card.accent .stat-value { color: #fff; }
     
     .dashboard-grid {
         display: grid;
@@ -98,180 +113,178 @@ admin_header('Tổng quan', 'dashboard');
     
     .widget-card {
         background: white;
-        border: 1px solid #e0e0e0;
-        border-radius: 8px;
-        padding: 20px;
+        border: 1px solid #eef2ff;
+        border-radius: 12px;
+        padding: 24px;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
     }
     
     .widget-title {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        margin-bottom: 16px;
-        padding-bottom: 12px;
-        border-bottom: 2px solid #ffd6e6;
+        margin-bottom: 20px;
     }
     
     .widget-title h3 {
         margin: 0;
         font-size: 16px;
         font-weight: 700;
+        color: #1e293b;
     }
     
     .widget-title a {
-        font-size: 11px;
+        font-size: 13px;
         font-weight: 600;
-        color: #e95a8a;
+        color: #6366f1;
         text-decoration: none;
     }
     
-    .widget-title a:hover {
-        text-decoration: underline;
-    }
-    
     .rental-item {
-        padding: 12px 0;
-        border-bottom: 1px solid #f0f0f0;
+        padding: 12px 16px;
+        border-radius: 8px;
+        background: #f8fafc;
         display: flex;
         justify-content: space-between;
         align-items: center;
+        margin-bottom: 8px;
+        border: 1px solid #f1f5f9;
+        transition: background 0.2s;
     }
     
-    .rental-item:last-child {
-        border-bottom: none;
-    }
+    .rental-item:hover { background: #f1f5f9; }
     
-    .rental-info {
-        flex: 1;
-    }
+    .rental-info { flex: 1; }
     
     .rental-product {
         font-weight: 600;
-        font-size: 13px;
-        color: #333;
+        font-size: 14px;
+        color: #0f172a;
     }
     
     .rental-customer {
-        font-size: 11px;
-        color: #999;
-        margin-top: 2px;
+        font-size: 12px;
+        color: #64748b;
+        margin-top: 4px;
     }
     
     .rental-days {
-        font-weight: 700;
-        padding: 4px 8px;
-        border-radius: 4px;
+        font-weight: 600;
+        padding: 4px 10px;
+        border-radius: 6px;
         font-size: 12px;
-        margin-left: 12px;
-        white-space: nowrap;
     }
     
-    .days-critical {
-        background: #dc3545;
-        color: white;
-    }
-    
-    .days-warning {
-        background: #ffc107;
-        color: #333;
-    }
-    
-    .days-healthy {
-        background: #28a745;
-        color: white;
-    }
-    
-    .empty-state {
-        text-align: center;
-        color: #999;
-        padding: 32px 16px;
-        font-size: 13px;
-    }
+    .days-critical { background: #fee2e2; color: #b91c1c; }
+    .days-warning { background: #fef3c7; color: #b45309; }
     
     .dashboard-table {
         width: 100%;
         border-collapse: collapse;
-        font-size: 13px;
+        font-size: 14px;
     }
     
     .dashboard-table th {
-        background: #f9f9f9;
         padding: 12px;
         text-align: left;
         font-weight: 600;
-        font-size: 11px;
-        color: #666;
-        border-bottom: 2px solid #e0e0e0;
+        color: #64748b;
+        border-bottom: 2px solid #f1f5f9;
     }
     
     .dashboard-table td {
         padding: 12px;
-        border-bottom: 1px solid #f0f0f0;
+        border-bottom: 1px solid #f1f5f9;
+        color: #334155;
     }
     
-    .dashboard-table tr:hover {
-        background: #fafafa;
+    .dashboard-table tr:hover td {
+        background: #f8fafc;
+    }
+    
+    .chart-box {
+        background: white;
+        border: 1px solid #eef2ff;
+        border-radius: 12px;
+        padding: 24px;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+        height: 300px;
+        margin-bottom: 24px;
     }
     
     @media (max-width: 1024px) {
-        .dashboard-grid {
-            grid-template-columns: 1fr;
-        }
-        
-        .dashboard-stats {
-            grid-template-columns: repeat(2, 1fr);
-        }
-    }
-    
-    @media (max-width: 768px) {
-        .dashboard-stats {
-            grid-template-columns: 1fr;
-        }
+        .dashboard-grid { grid-template-columns: 1fr; }
     }
 </style>
 
-<!-- Main Stats Cards -->
+<!-- Main Stats -->
 <div class="dashboard-stats">
-    <div class="stat-card">
-        <div class="stat-label">Tổng sản phẩm</div>
-        <div class="stat-value"><?php echo $totalProducts; ?></div>
-        <div class="stat-trend">Trong hệ thống</div>
+    <div class="stat-card accent">
+        <div class="stat-label">Doanh thu tháng này</div>
+        <div class="stat-value"><?php echo number_format($thisMonthRevenue, 0, ',', '.'); ?> đ</div>
     </div>
     <div class="stat-card">
         <div class="stat-label">Tổng đơn hàng</div>
         <div class="stat-value"><?php echo $totalOrders; ?></div>
-        <div class="stat-trend">Mọi thời gian</div>
-    </div>
-    <div class="stat-card accent">
-        <div class="stat-label">Doanh thu tháng này</div>
-        <div class="stat-value"><?php echo number_format($thisMonthRevenue, 0, ',', '.'); ?></div>
-        <div class="stat-trend">Tính bằng đ</div>
     </div>
     <div class="stat-card">
-        <div class="stat-label">Người dùng hoạt động</div>
+        <div class="stat-label">Sản phẩm hiện có</div>
+        <div class="stat-value"><?php echo $totalProducts; ?></div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-label">Người dùng</div>
         <div class="stat-value"><?php echo $totalUsers; ?></div>
-        <div class="stat-trend">Đã đăng ký</div>
+    </div>
+</div>
+
+<!-- Revenue Chart -->
+<div class="chart-box">
+    <div style="font-size: 16px; font-weight: 700; color: #1e293b; margin-bottom: 16px;">Biểu đồ doanh thu 7 ngày qua</div>
+    <div style="height: 220px;">
+        <canvas id="revenueChart"></canvas>
     </div>
 </div>
 
 <!-- Main Content Grid -->
 <div class="dashboard-grid">
+    <!-- Latest Orders -->
+    <div class="widget-card">
+        <div class="widget-title">
+            <h3><i class="fa-solid fa-cart-shopping" style="color:#6366f1; margin-right:8px;"></i>Đơn hàng mới</h3>
+            <a href="orders.php">Tất cả →</a>
+        </div>
+        <table class="dashboard-table">
+            <tr>
+                <th>Mã</th>
+                <th>Khách hàng</th>
+                <th>Ngày</th>
+                <th style="text-align: right;">Tổng</th>
+            </tr>
+            <?php foreach ($latestOrders as $order): ?>
+                <tr style="cursor: pointer;" onclick="window.location.href='order_detail.php?id=<?php echo $order['id']; ?>'">
+                    <td><strong>#<?php echo $order['id']; ?></strong></td>
+                    <td><?php echo htmlspecialchars($order['customer_name'] ?: 'Khách'); ?></td>
+                    <td><?php echo date('d/m', strtotime($order['created_at'])); ?></td>
+                    <td style="text-align: right; font-weight: 600; color: #4f46e5;"><?php echo number_format($order['total_price'], 0, ',', '.'); ?> đ</td>
+                </tr>
+            <?php endforeach; ?>
+        </table>
+    </div>
+
     <!-- Rentals Due Soon -->
     <div class="widget-card">
         <div class="widget-title">
-            <h3>📋 Sắp hết hạn thuê</h3>
-            <a href="rentals.php">Xem tất cả →</a>
+            <h3><i class="fa-solid fa-clock" style="color:#f59e0b; margin-right:8px;"></i>Sắp đến hạn trả</h3>
+            <a href="rentals.php">Quản lý →</a>
         </div>
         <?php if (!empty($dueSoonRentals)): ?>
             <div>
                 <?php foreach ($dueSoonRentals as $rental): ?>
-                    <div class="rental-item">
+                    <div class="rental-item" style="cursor: pointer;" onclick="window.location.href='order_detail.php?id=<?php echo $rental['order_id']; ?>'">
                         <div class="rental-info">
                             <div class="rental-product"><?php echo htmlspecialchars($rental['product_name']); ?></div>
                             <div class="rental-customer">
-                                <?php echo htmlspecialchars($rental['customer_name']); ?> 
-                                <i class="fa-solid fa-circle" style="font-size: 3px; margin: 0 4px; vertical-align: middle;"></i>
-                                <?php echo htmlspecialchars($rental['email']); ?>
+                                <?php echo htmlspecialchars($rental['customer_name']); ?> • Nhận: <?php echo date('d/m', strtotime($rental['rental_end'])); ?>
                             </div>
                         </div>
                         <?php
@@ -284,7 +297,7 @@ admin_header('Tổng quan', 'dashboard');
                             $daysText = '🔴 Hôm nay';
                         } else {
                             $daysClass = 'days-warning';
-                            $daysText = '🟠 ' . $daysLeft . ' ngày';
+                            $daysText = '🟠 ' . $daysLeft . ' ngày nữa';
                         }
                         ?>
                         <span class="rental-days <?php echo $daysClass; ?>"><?php echo $daysText; ?></span>
@@ -292,78 +305,61 @@ admin_header('Tổng quan', 'dashboard');
                 <?php endforeach; ?>
             </div>
         <?php else: ?>
-            <div class="empty-state">✓ Không có đơn hàng sắp hết hạn</div>
+            <div style="text-align: center; color: #94a3b8; padding: 24px; font-size: 14px;">Khoảng thời gian này không có đơn thuê sắp hạn.</div>
         <?php endif; ?>
-    </div>
-    
-    <!-- Revenue This Month & Quick Actions -->
-    <div class="widget-card">
-        <div class="widget-title">
-            <h3>💰 Thống kê doanh thu</h3>
-            <a href="reports.php">Chi tiết →</a>
-        </div>
-        <div style="text-align: center; padding: 16px 0;">
-            <div class="stat-label">Tháng này</div>
-            <div style="font-size: 32px; font-weight: 700; color: #e95a8a; margin: 12px 0;">
-                <?php echo number_format($thisMonthRevenue, 0, ',', '.'); ?> đ
-            </div>
-            <div class="stat-label">So với tất cả thời gian</div>
-            <div style="font-size: 18px; font-weight: 600; color: #333; margin-top: 12px;">
-                <?php echo number_format($totalRevenue, 0, ',', '.'); ?> đ
-            </div>
-        </div>
-        <hr style="margin: 16px 0; border: none; border-top: 1px solid #f0f0f0;">
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 16px;">
-            <a href="rentals.php" class="btn ghost" style="text-align: center; font-size: 12px;">📅 Quản lý thuê</a>
-            <a href="inventory.php" class="btn ghost" style="text-align: center; font-size: 12px;">📦 Kho hàng</a>
-        </div>
     </div>
 </div>
 
-<!-- Latest Orders & Top Categories -->
-<div class="dashboard-grid" style="margin-top: 24px;">
-    <div class="widget-card">
-        <div class="widget-title">
-            <h3>🛒 Đơn hàng mới</h3>
-            <a href="orders.php">Xem tất cả →</a>
-        </div>
-        <table class="dashboard-table">
-            <tr>
-                <th>ID</th>
-                <th>Khách</th>
-                <th>Ngày</th>
-                <th>Tổng</th>
-            </tr>
-            <?php foreach ($latestOrders as $order): ?>
-                <tr style="cursor: pointer;" onclick="window.location.href='order_detail.php?id=<?php echo $order['id']; ?>'">
-                    <td><strong>#<?php echo $order['id']; ?></strong></td>
-                    <td><?php echo htmlspecialchars($order['customer_name'] ?: 'Khách'); ?></td>
-                    <td><?php echo date('d/m', strtotime($order['created_at'])); ?></td>
-                    <td><?php echo number_format($order['total_price'], 0, ',', '.'); ?> đ</td>
-                </tr>
-            <?php endforeach; ?>
-        </table>
-    </div>
-    
-    <div class="widget-card">
-        <div class="widget-title">
-            <h3>📂 Top danh mục</h3>
-            <a href="products.php">Quản lý →</a>
-        </div>
-        <table class="dashboard-table">
-            <tr>
-                <th>Danh mục</th>
-                <th>Sản phẩm</th>
-            </tr>
-            <?php foreach ($topCategories as $cat): ?>
-                <tr>
-                    <td><?php echo htmlspecialchars($cat['name']); ?></td>
-                    <td><strong><?php echo $cat['total_products']; ?></strong></td>
-                </tr>
-            <?php endforeach; ?>
-        </table>
-    </div>
-</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+<script>
+const ctx = document.getElementById('revenueChart').getContext('2d');
+new Chart(ctx, {
+    type: 'line',
+    data: {
+        labels: <?php echo json_encode($periodLabels); ?>,
+        datasets: [{
+            label: 'Doanh thu',
+            data: <?php echo json_encode($periodRevenue); ?>,
+            borderColor: '#6366f1',
+            backgroundColor: 'rgba(99, 102, 241, 0.1)',
+            borderWidth: 2,
+            tension: 0.3,
+            fill: true,
+            pointBackgroundColor: '#fff',
+            pointBorderColor: '#6366f1',
+            pointBorderWidth: 2,
+            pointRadius: 4
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: { display: false }
+        },
+        scales: {
+            y: {
+                beginAtZero: true,
+                grid: {
+                    color: '#f1f5f9',
+                    drawBorder: false
+                },
+                ticks: {
+                    callback: function(value) {
+                        return value.toLocaleString('vi-VN') + ' đ';
+                    },
+                    font: { size: 11 },
+                    color: '#64748b'
+                }
+            },
+            x: {
+                grid: { display: false, drawBorder: false },
+                ticks: { font: { size: 11 }, color: '#64748b' }
+            }
+        }
+    }
+});
+</script>
 
 <?php
 admin_footer();

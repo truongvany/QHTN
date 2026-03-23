@@ -3,10 +3,14 @@
    ========================================= */
 /* Đặt tên cho màu */
 :root {
-    --primary-pink: #ffd6e6;       /* Hồng phấn */
-    --accent-pink: #e95a8a;        /* Hồng đậm */
-    --hover-pink: #d54f7b;         /* Hồng hover */
-    --bg-light: #fff6fa;           /* Nền hồng nhạt */
+    --primary-pink: #ffd6e6;
+    /* Hồng phấn */
+    --accent-pink: #e95a8a;
+    /* Hồng đậm */
+    --hover-pink: #d54f7b;
+    /* Hồng hover */
+    --bg-light: #fff6fa;
+    /* Nền hồng nhạt */
     --text-color: #2f1c26;
     --white: #ffffff;
     --rose-border: #f7c8d9;
@@ -16,7 +20,11 @@
 /* =========================================
    2. CẤU HÌNH CƠ BẢN
    ========================================= */
-* { margin: 0; padding: 0; box-sizing: border-box; }
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
 
 body {
     font-family: 'Montserrat', sans-serif;
@@ -25,29 +33,46 @@ body {
     line-height: 1.6;
 }
 
-a { text-decoration: none; color: inherit; transition: 0.3s; }
-ul { list-style: none; }
-img { max-width: 100%; display: block; }
+a {
+    text-decoration: none;
+    color: inherit;
+    transition: 0.3s;
+}
+
+ul {
+    list-style: none;
+}
+
+img {
+    max-width: 100%;
+    display: block;
+}
 
 /* =========================================
    3. HEADER & THANH ĐIỀU HƯỚNG
    ========================================= */
 .sticky-wrapper {
-    position: sticky; top: 0; z-index: 1000;
-    width: 100%; 
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    width: 100%;
     background: linear-gradient(135deg, rgba(233, 90, 138, 0.05) 0%, rgba(255, 214, 230, 0.5) 100%);
     border-bottom: 2px solid rgba(233, 90, 138, 0.15);
     backdrop-filter: blur(10px);
 }
 
 header {
-    display: flex; justify-content: space-between; align-items: center;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
     padding: 8px 5%;
-    max-width: 1400px; margin: 0 auto;
+    max-width: 1400px;
+    margin: 0 auto;
     min-height: 55px;
 }
 
-main, .content {
+main,
+.content {
     margin-top: 0;
 }
 
@@ -55,8 +80,10 @@ main, .content {
 .logo a {
     text-decoration: none;
     display: flex;
-    flex-direction: column; /* Xếp chồng chữ lên nhau */
-    align-items: center;    /* Canh giữa */
+    flex-direction: column;
+    /* Xếp chồng chữ lên nhau */
+    align-items: center;
+    /* Canh giữa */
     justify-content: center;
     line-height: 1.2;
     transition: 0.3s;
@@ -64,8 +91,10 @@ main, .content {
 
 .logo-text {
     font-family: 'Montserrat', sans-serif;
-    font-weight: 800;       /* Rất đậm */
-    font-size: 32px;        /* Kích thước lớn */
+    font-weight: 800;
+    /* Rất đậm */
+    font-size: 32px;
+    /* Kích thước lớn */
     color: var(--text-color);
     letter-spacing: 2px;
     text-transform: uppercase;
@@ -76,33 +105,44 @@ main, .content {
 .logo-text::after {
     content: '';
     display: inline-block;
-    width: 6px; height: 6px;
+    width: 6px;
+    height: 6px;
     background-color: var(--accent-pink);
     border-radius: 50%;
-    margin-left: 3px; margin-bottom: 4px;
+    margin-left: 3px;
+    margin-bottom: 4px;
 }
 
 .logo-slogan {
     font-family: 'Montserrat', sans-serif;
-    font-weight: 400;       /* Mảnh mai */
+    font-weight: 400;
+    /* Mảnh mai */
     font-size: 10px;
     color: #888;
-    letter-spacing: 4px;    /* Kéo dãn chữ */
+    letter-spacing: 4px;
+    /* Kéo dãn chữ */
     text-transform: uppercase;
     margin-top: 2px;
 }
 
 /* Hiệu ứng Hover Logo */
-.logo a:hover .logo-text { color: var(--accent-pink); }
-.logo a:hover .logo-slogan { color: #333; letter-spacing: 5px; transition: 0.3s; }
+.logo a:hover .logo-text {
+    color: var(--accent-pink);
+}
+
+.logo a:hover .logo-slogan {
+    color: #333;
+    letter-spacing: 5px;
+    transition: 0.3s;
+}
 
 
 /* Thanh tìm kiếm */
-.search-container { 
-    flex: 1; 
-    display: flex; 
-    justify-content: center; 
-    margin: 0 24px; 
+.search-container {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    margin: 0 24px;
 }
 
 .search-box {
@@ -123,13 +163,13 @@ main, .content {
     box-shadow: 0 6px 20px rgba(233, 90, 138, 0.15);
 }
 
-.search-box input { 
+.search-box input {
     flex: 1;
-    border: none; 
-    padding: 10px 16px; 
-    width: 100%; 
-    outline: none; 
-    font-size: 13px; 
+    border: none;
+    padding: 10px 16px;
+    width: 100%;
+    outline: none;
+    font-size: 13px;
     background: transparent;
     color: var(--text-color);
     font-family: 'Montserrat', sans-serif;
@@ -140,31 +180,31 @@ main, .content {
 }
 
 .search-box button {
-    background: var(--accent-pink); 
-    color: var(--white); 
-    border: none; 
-    padding: 0 16px; 
-    cursor: pointer; 
+    background: var(--accent-pink);
+    color: var(--white);
+    border: none;
+    padding: 0 16px;
+    cursor: pointer;
     transition: all 0.3s ease;
     height: 100%;
     font-size: 14px;
 }
 
-.search-box button:hover { 
-    background: #d54f7b; 
+.search-box button:hover {
+    background: #d54f7b;
 }
 
 /* Header Right */
-.header-right { 
-    display: flex; 
-    align-items: center; 
+.header-right {
+    display: flex;
+    align-items: center;
     gap: 18px;
     flex-shrink: 0;
 }
 
-.cart-icon-header a { 
-    position: relative; 
-    font-size: 20px; 
+.cart-icon-header a {
+    position: relative;
+    font-size: 20px;
     color: var(--accent-pink);
     display: flex;
     align-items: center;
@@ -177,33 +217,33 @@ main, .content {
 }
 
 .cart-count {
-    position: absolute; 
-    top: -6px; 
+    position: absolute;
+    top: -6px;
     right: -8px;
-    background: var(--accent-pink); 
-    color: var(--white); 
+    background: var(--accent-pink);
+    color: var(--white);
     font-size: 9px;
-    width: 18px; 
-    height: 18px; 
+    width: 18px;
+    height: 18px;
     border-radius: 50%;
-    display: flex; 
-    align-items: center; 
-    justify-content: center; 
+    display: flex;
+    align-items: center;
+    justify-content: center;
     font-weight: 700;
 }
 
 /* Auth Links */
-.auth-links { 
-    font-size: 12px; 
-    font-weight: 600; 
-    display: flex; 
+.auth-links {
+    font-size: 12px;
+    font-weight: 600;
+    display: flex;
     align-items: center;
     gap: 12px;
 }
 
-.profile-icon { 
-    display: flex; 
-    align-items: center; 
+.profile-icon {
+    display: flex;
+    align-items: center;
     justify-content: center;
     color: var(--accent-pink);
     font-size: 22px;
@@ -216,13 +256,13 @@ main, .content {
     transform: scale(1.1);
 }
 
-.profile-icon i { 
-    font-size: 22px; 
+.profile-icon i {
+    font-size: 22px;
 }
 
-.user-dropdown { 
-    display: flex; 
-    align-items: center; 
+.user-dropdown {
+    display: flex;
+    align-items: center;
     gap: 10px;
 }
 
@@ -237,11 +277,11 @@ main, .content {
     color: #d54f7b;
 }
 
-.badge-admin { 
-    background: var(--accent-pink); 
-    color: #fff; 
-    padding: 4px 8px; 
-    border-radius: 5px; 
+.badge-admin {
+    background: var(--accent-pink);
+    color: #fff;
+    padding: 4px 8px;
+    border-radius: 5px;
     font-size: 10px;
     font-weight: 700;
     text-transform: uppercase;
@@ -252,10 +292,10 @@ main, .content {
     background: #d54f7b;
 }
 
-.btn-login { 
-    background: var(--accent-pink); 
-    color: #fff; 
-    padding: 8px 16px; 
+.btn-login {
+    background: var(--accent-pink);
+    color: #fff;
+    padding: 8px 16px;
     border: none;
     border-radius: 50px;
     font-weight: 700;
@@ -268,7 +308,7 @@ main, .content {
     text-decoration: none;
 }
 
-.btn-login:hover { 
+.btn-login:hover {
     background: #d54f7b;
     transform: translateY(-2px);
     box-shadow: 0 6px 16px rgba(233, 90, 138, 0.25);
@@ -277,33 +317,33 @@ main, .content {
 /* =========================================
    4. MENU CHÍNH
    ========================================= */
-.main-menu { 
+.main-menu {
     background: linear-gradient(90deg, rgba(255, 214, 230, 0.3) 0%, rgba(245, 233, 241, 0.5) 100%);
     border-top: 1px solid rgba(233, 90, 138, 0.1);
     padding: 0 5%;
 }
 
-.main-menu > ul { 
-    display: flex; 
-    justify-content: center; 
-    gap: 28px; 
-    padding: 12px 0; 
+.main-menu>ul {
+    display: flex;
+    justify-content: center;
+    gap: 28px;
+    padding: 12px 0;
     margin: 0;
     max-width: 1400px;
     margin: 0 auto;
 }
 
-.main-menu > ul > li { 
-    position: relative; 
+.main-menu>ul>li {
+    position: relative;
 }
 
 .menu-link {
-    font-weight: 700; 
-    font-size: 12px; 
+    font-weight: 700;
+    font-size: 12px;
     color: var(--text-color);
     text-transform: uppercase;
-    padding: 8px 0; 
-    display: block; 
+    padding: 8px 0;
+    display: block;
     position: relative;
     transition: all 0.3s ease;
     letter-spacing: 0.5px;
@@ -420,7 +460,9 @@ main, .content {
 }
 
 @media (max-width: 1024px) {
-    .catalog-layout { grid-template-columns: 1fr; }
+    .catalog-layout {
+        grid-template-columns: 1fr;
+    }
 }
 
 .product-grid,
@@ -484,7 +526,6 @@ main, .content {
     color: #2f1c26;
     line-height: 1.3;
     display: -webkit-box;
-    -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
 }
@@ -585,10 +626,20 @@ main, .content {
     color: #2f1c26;
 }
 
-.filter-form { display: flex; flex-direction: column; gap: 14px; }
+.filter-form {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
 
-.filter-section { padding: 12px 0; border-top: 1px solid #eadfcf; }
-.filter-section:first-of-type { border-top: none; }
+.filter-section {
+    padding: 12px 0;
+    border-top: 1px solid #eadfcf;
+}
+
+.filter-section:first-of-type {
+    border-top: none;
+}
 
 .filter-section h4 {
     font-size: 14px;
@@ -596,6 +647,41 @@ main, .content {
     color: #3a2330;
     margin-bottom: 10px;
     letter-spacing: 0.3px;
+}
+
+.filter-select {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #f2c6d8;
+    border-radius: 8px;
+    background: #fff;
+    color: #3b2531;
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 600;
+    font-size: 14px;
+    cursor: pointer;
+    transition: 0.2s ease;
+    appearance: none;
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23e95a8a' stroke-width='2'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right 8px center;
+    background-size: 20px;
+    padding-right: 32px;
+}
+
+.filter-select:hover {
+    border-color: var(--accent-pink);
+}
+
+.filter-select:focus {
+    outline: none;
+    border-color: var(--accent-pink);
+    box-shadow: 0 0 0 3px rgba(233, 90, 138, 0.1);
+}
+
+.filter-select option {
+    background: #fff;
+    color: #3b2531;
 }
 
 .pill-options {
@@ -626,7 +712,10 @@ main, .content {
     cursor: pointer;
 }
 
-.pill-btn:hover { border-color: var(--accent-pink); color: var(--accent-pink); }
+.pill-btn:hover {
+    border-color: var(--accent-pink);
+    color: var(--accent-pink);
+}
 
 .pill-btn.active,
 .pill-btn:has(input:checked) {
@@ -641,7 +730,7 @@ main, .content {
     height: 46px;
     border-radius: 50%;
     border: 1px solid #f0c0d5;
-    box-shadow: inset 0 0 0 2px rgba(255,255,255,0.65), 0 6px 14px rgba(150, 93, 116, 0.16);
+    box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.65), 0 6px 14px rgba(150, 93, 116, 0.16);
     background: linear-gradient(135deg, #ffd6e6, #f4b2cc);
 }
 
@@ -680,7 +769,7 @@ main, .content {
 .color-chip:has(input:checked) .color-swatch {
     transform: translateY(-1px);
     border-color: #be6f8d !important;
-    box-shadow: inset 0 0 0 2px rgba(255,255,255,0.65), 0 0 0 3px rgba(190, 111, 141, 0.25), 0 8px 18px rgba(142, 89, 111, 0.22);
+    box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.65), 0 0 0 3px rgba(190, 111, 141, 0.25), 0 8px 18px rgba(142, 89, 111, 0.22);
 }
 
 .color-chip.active .pill-content span:last-child,
@@ -718,7 +807,6 @@ main, .content {
     left: 0;
     top: 50%;
     transform: translateY(-50%);
-    -webkit-appearance: none;
     height: 8px;
     border-radius: 999px;
     background: linear-gradient(90deg, #ff8aae 0%, #ffdde6 100%);
@@ -789,43 +877,68 @@ main, .content {
    7. TOAST THÔNG BÁO (BỔ SUNG)
    ========================================= */
 #toast-box {
-    position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%);
-    background-color: rgba(0,0,0,0.85); color: #fff;
-    padding: 12px 30px; border-radius: 50px;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-    display: flex; align-items: center; gap: 10px;
-    opacity: 0; visibility: hidden; transition: all 0.3s ease; z-index: 9999;
+    position: fixed;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: rgba(0, 0, 0, 0.85);
+    color: #fff;
+    padding: 12px 30px;
+    border-radius: 50px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+    z-index: 9999;
 }
-#toast-box.show { bottom: 50px; opacity: 1; visibility: visible; }
-#toast-box i { color: #2ecc71; font-size: 18px; }
+
+#toast-box.show {
+    bottom: 50px;
+    opacity: 1;
+    visibility: visible;
+}
+
+#toast-box i {
+    color: #2ecc71;
+    font-size: 18px;
+}
 
 /* =========================================
    8. FOOTER (ĐÃ TINH CHỈNH GỌN GÀNG)
    ========================================= */
 footer {
-    background-color: var(--primary-pink); /* Nền hồng phấn */
-    color: #444; 
-    padding: 20px 0 10px; /* Giảm padding trên dưới để bớt cao */
+    background-color: var(--primary-pink);
+    /* Nền hồng phấn */
+    color: #444;
+    padding: 20px 0 10px;
+    /* Giảm padding trên dưới để bớt cao */
     margin-top: 40px;
-    font-size: 14px; /* Chữ nhỏ gọn hơn */
+    font-size: 14px;
+    /* Chữ nhỏ gọn hơn */
 }
 
-.footer-container { 
-    display: grid; 
-    grid-template-columns: 1.2fr 1.5fr 0.8fr; /* Chia tỷ lệ cột hợp lý hơn */
-    max-width: 1100px; /* Thu hẹp chiều ngang một chút cho gọn */
-    margin: 0 auto; 
-    gap: 30px; 
+.footer-container {
+    display: grid;
+    grid-template-columns: 1.2fr 1.5fr 0.8fr;
+    /* Chia tỷ lệ cột hợp lý hơn */
+    max-width: 1100px;
+    /* Thu hẹp chiều ngang một chút cho gọn */
+    margin: 0 auto;
+    gap: 30px;
     padding: 0 20px;
 }
 
 /* Tiêu đề cột */
-.footer-col h3 { 
-    color: var(--accent-pink); 
-    margin-bottom: 10px; /* Giảm khoảng cách dưới tiêu đề */
-    font-size: 16px; 
-    font-weight: 700; 
-    text-transform: uppercase; 
+.footer-col h3 {
+    color: var(--accent-pink);
+    margin-bottom: 10px;
+    /* Giảm khoảng cách dưới tiêu đề */
+    font-size: 16px;
+    font-weight: 700;
+    text-transform: uppercase;
     letter-spacing: 0.5px;
 }
 
@@ -838,17 +951,22 @@ footer {
 
 /* Cột Liên hệ (Danh sách) */
 .contact-list li {
-    display: flex; /* Dùng flex để icon và chữ thẳng hàng ngang */
-    align-items: flex-start; /* Căn thẳng hàng bên trên */
-    margin-bottom: 10px; /* Giảm khoảng cách giữa các dòng */
+    display: flex;
+    /* Dùng flex để icon và chữ thẳng hàng ngang */
+    align-items: flex-start;
+    /* Căn thẳng hàng bên trên */
+    margin-bottom: 10px;
+    /* Giảm khoảng cách giữa các dòng */
     gap: 10px;
 }
 
 .contact-list i {
     color: var(--accent-pink);
-    width: 20px; /* Cố định chiều rộng icon để chữ thẳng hàng dọc */
+    width: 20px;
+    /* Cố định chiều rộng icon để chữ thẳng hàng dọc */
     text-align: center;
-    margin-top: 3px; /* Đẩy icon xuống xíu cho cân với dòng chữ */
+    margin-top: 3px;
+    /* Đẩy icon xuống xíu cho cân với dòng chữ */
 }
 
 .contact-list a {
@@ -856,8 +974,16 @@ footer {
     transition: 0.2s;
     line-height: 1.4;
 }
-.contact-list a:hover { color: var(--accent-pink); text-decoration: underline; }
-.highlight-text { font-weight: 600; color: #333; }
+
+.contact-list a:hover {
+    color: var(--accent-pink);
+    text-decoration: underline;
+}
+
+.highlight-text {
+    font-weight: 600;
+    color: #333;
+}
 
 /* Cột Mạng xã hội (Icon tròn) */
 .social-links {
@@ -866,17 +992,25 @@ footer {
 }
 
 .social-links a {
-    display: flex; align-items: center; justify-content: center;
-    width: 35px; height: 35px; /* Tạo hình tròn nhỏ gọn */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 35px;
+    height: 35px;
+    /* Tạo hình tròn nhỏ gọn */
     background: #fff;
     color: var(--accent-pink);
     border-radius: 50%;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
     transition: 0.3s;
     border: 1px solid transparent;
 }
 
-.social-links a i { font-size: 16px; } /* Icon nhỏ lại cho vừa hình tròn */
+.social-links a i {
+    font-size: 16px;
+}
+
+/* Icon nhỏ lại cho vừa hình tròn */
 
 .social-links a:hover {
     background: var(--accent-pink);
@@ -886,30 +1020,59 @@ footer {
 }
 
 /* Copyright */
-.copyright { 
-    text-align: center; 
-    margin-top: 25px; 
-    padding-top: 15px; 
-    border-top: 1px solid rgba(0,0,0,0.05); 
-    font-size: 12px; 
+.copyright {
+    text-align: center;
+    margin-top: 25px;
+    padding-top: 15px;
+    border-top: 1px solid rgba(0, 0, 0, 0.05);
+    font-size: 12px;
     color: #777;
 }
 
 /* RESPONSIVE */
 @media (max-width: 768px) {
-    header { flex-wrap: wrap; gap: 15px; }
-    .search-container { order: 3; width: 100%; margin: 0; }
-    .main-menu > ul { gap: 20px; overflow-x: auto; white-space: nowrap; justify-content: flex-start; padding: 15px 20px; }
-    .dropdown-content { left: 0; transform: none; }
-    
-    .footer-container { 
-        grid-template-columns: 1fr; /* Về 1 cột */
-        text-align: center; 
+    header {
+        flex-wrap: wrap;
+        gap: 15px;
+    }
+
+    .search-container {
+        order: 3;
+        width: 100%;
+        margin: 0;
+    }
+
+    .main-menu>ul {
+        gap: 20px;
+        overflow-x: auto;
+        white-space: nowrap;
+        justify-content: flex-start;
+        padding: 15px 20px;
+    }
+
+    .dropdown-content {
+        left: 0;
+        transform: none;
+    }
+
+    .footer-container {
+        grid-template-columns: 1fr;
+        /* Về 1 cột */
+        text-align: center;
         gap: 25px;
     }
-    .contact-list li { justify-content: center; }
-    .social-links { justify-content: center; }
-    .about-col p { max-width: 100%; }
+
+    .contact-list li {
+        justify-content: center;
+    }
+
+    .social-links {
+        justify-content: center;
+    }
+
+    .about-col p {
+        max-width: 100%;
+    }
 }
 
 /* =========================================
@@ -1336,6 +1499,7 @@ footer {
         opacity: 0;
         transform: translateY(20px);
     }
+
     to {
         opacity: 1;
         transform: translateY(0);

@@ -4,7 +4,6 @@ header('Location: dashboard.php');
 exit();
 
 ?>
-
     .stat-info p {
             margin: 0;
             color: #777;

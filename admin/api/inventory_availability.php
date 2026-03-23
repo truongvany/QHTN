@@ -3,7 +3,7 @@
  * Admin API: Get inventory availability for a product variant
  * GET: product_id, variant_id (optional), start_date, end_date
  */
-require_once __DIR__ . '/../config.php';
+require_once __DIR__ . '/../init.php';
 
 header('Content-Type: application/json');
 

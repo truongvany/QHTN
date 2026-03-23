@@ -19,7 +19,7 @@ include 'header.php';
     align-items: flex-end;
     background:
         linear-gradient(to right, rgba(47,28,38,0.96) 32%, rgba(47,28,38,0.65) 60%, rgba(47,28,38,0.15) 100%),
-        url('img/avatars/hero.webp') center 25% / cover no-repeat;
+        url('https://as2.ftcdn.net/v2/jpg/06/75/20/35/1000_F_675203597_CozdpomUpN56eZX1iePmXDNODiRTkcdO.jpg') center 25% / cover no-repeat;
     overflow: hidden;
 }
 .ab-hero::before {
@@ -469,7 +469,7 @@ include 'header.php';
 <div class="ab-story-strip" id="story">
     <div class="ab-story-grid">
         <div class="ab-story-img">
-            <img src="img/avatars/hero.webp" alt="Đội ngũ QHTN">
+            <img src="assets/pictures/IMG_5006.webp" alt="Đội ngũ QHTN">
         </div>
         <div class="ab-story-text">
             <div class="ab-eyebrow">Our Story</div>

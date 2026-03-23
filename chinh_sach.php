@@ -16,7 +16,7 @@ include 'header.php';
 .pol-hero {
     background:
         linear-gradient(105deg, rgba(47,28,38,0.91) 0%, rgba(90,33,56,0.85) 55%, rgba(139,48,87,0.80) 100%),
-        url('img/avatars/hero.webp') center 30% / cover no-repeat;
+        url('https://as2.ftcdn.net/v2/jpg/06/64/47/11/1000_F_664471105_wSK5c9cjh4VPDY6ftbZQoAv9xzm0pqlE.jpg') center 30% / cover no-repeat;
     padding: 72px 5%;
     position: relative;
     overflow: hidden;

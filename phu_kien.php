@@ -1,8 +1,12 @@
 <?php 
 require_once 'config.php'; 
-include 'header.php'; 
+include 'header.php';
 
-$category_id = 4; // Phụ kiện
+$category_id = isset($_GET['category']) && is_numeric($_GET['category']) ? (int)$_GET['category'] : 4;
+
+$categoryStmt = $conn->prepare("SELECT id, name FROM categories ORDER BY id ASC");
+$categoryStmt->execute();
+$categories = $categoryStmt->fetchAll(PDO::FETCH_ASSOC);
 
 $size = isset($_GET['size']) ? trim($_GET['size']) : '';
 $color = isset($_GET['color']) ? trim($_GET['color']) : '';
@@ -78,7 +82,18 @@ $products = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 <div class="container" style="padding: 40px 5%; min-height: 60vh;">
     <div class="section-heading">
-        <h2 class="section-title"><i class="fa-solid fa-gem"></i> Bộ Sưu Tập Phụ Kiện</h2>
+        <h2 class="section-title"><i class="fa-solid fa-gem"></i> 
+        <?php 
+            $selectedCategory = null;
+            foreach ($categories as $cat) {
+                if ((int)$cat['id'] === $category_id) {
+                    $selectedCategory = $cat['name'];
+                    break;
+                }
+            }
+            echo $selectedCategory ? 'Bộ Sưu Tập ' . htmlspecialchars($selectedCategory) : 'Bộ Sưu Tập Sản Phẩm';
+        ?>
+        </h2>
     </div>
 
     <div class="catalog-layout">
@@ -88,6 +103,18 @@ $products = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 <div class="filter-title">Tìm mẫu phù hợp</div>
             </div>
             <form class="filter-form auto-filter-form" method="get">
+                <div class="filter-section">
+                    <h4>Danh mục</h4>
+                    <select name="category" class="filter-select" onchange="document.querySelector('.auto-filter-form').submit();">
+                        <option value="4" <?= $category_id === 4 ? 'selected' : ''; ?>>Tất cả danh mục</option>
+                        <?php foreach ($categories as $cat): ?>
+                            <option value="<?= htmlspecialchars($cat['id']); ?>" <?= $category_id === (int)$cat['id'] ? 'selected' : ''; ?>>
+                                <?= htmlspecialchars($cat['name']); ?>
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+
                 <div class="filter-section">
                     <h4>Kích cỡ</h4>
                     <div class="pill-options">
