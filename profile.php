@@ -145,12 +145,13 @@ include 'header.php';
 }
 .pf-avatar-wrap {
     position: relative; flex-shrink: 0;
-    width: 108px; height: 108px;
-    margin-bottom: -28px;
+    width: 118px; height: 118px;
+    margin-bottom: -38px;
+    top: -10px;
 }
 .pf-avatar-wrap img {
-    width: 108px; height: 108px;
-    object-fit: cover; object-position: top;
+    width: 118px; height: 118px;
+    object-fit: cover; object-position: center;
     border: 4px solid #fff; box-shadow: 0 6px 24px rgba(0,0,0,0.28);
     cursor: pointer; transition: filter 0.25s;
     display: block;
